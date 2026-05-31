@@ -1,0 +1,583 @@
+
+<h2 class="sr-only">Interactive LLM workflow simulation covering tokenization, embeddings, vector database, transformer attention, and response generation.</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.sim{padding:16px 0;max-width:680px}
+.stage-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.stage-btn{padding:6px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;transition:all .2s}
+.stage-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent;font-weight:500}
+.panel{display:none;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.info-bar{background:var(--color-background-secondary);border-left:3px solid var(--color-border-info);padding:10px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;font-size:13px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6}
+.info-bar strong{color:var(--color-text-primary)}
+svg.panel-svg{width:100%;overflow:visible}
+.token-box{cursor:pointer;transition:opacity .15s}
+.token-box:hover rect{opacity:.8}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes flow{0%{stroke-dashoffset:40}100%{stroke-dashoffset:0}}
+@keyframes scanline{0%{transform:translateY(0)}100%{transform:translateY(260px)}}
+.anim-flow{stroke-dasharray:6 4;animation:flow 1.2s linear infinite}
+.anim-pulse{animation:pulse 1.5s ease-in-out infinite}
+.dim{opacity:.25}
+.bright{opacity:1}
+input[type=range]{width:100%}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0;font-size:11px;color:var(--color-text-secondary);align-items:center}
+.leg-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px}
+.qa-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
+.qa-label{min-width:60px;font-size:12px;font-weight:500;color:var(--color-text-secondary);padding-top:2px}
+.qa-inp{flex:1;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.run-btn{padding:7px 18px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;white-space:nowrap}
+.run-btn:hover{background:var(--color-background-secondary)}
+.output-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:13px;color:var(--color-text-secondary);min-height:40px;line-height:1.7;margin-top:8px}
+.chip{display:inline-block;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:500;margin:2px}
+.chip-blue{background:#E6F1FB;color:#185FA5}
+.chip-teal{background:#E1F5EE;color:#0F6E56}
+.chip-amber{background:#FAEEDA;color:#854F0B}
+.chip-purple{background:#EEEDFE;color:#3C3489}
+.chip-coral{background:#FAECE7;color:#993C1D}
+@media (prefers-color-scheme:dark){
+  .chip-blue{background:#0C447C;color:#B5D4F4}
+  .chip-teal{background:#085041;color:#9FE1CB}
+  .chip-amber{background:#633806;color:#FAC775}
+  .chip-purple{background:#3C3489;color:#CECBF6}
+  .chip-coral{background:#712B13;color:#F5C4B3}
+}
+.vec-bar{height:8px;border-radius:4px;transition:width .6s ease}
+.vec-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+.vec-label{width:70px;color:var(--color-text-secondary);text-align:right}
+.vec-track{flex:1;background:var(--color-background-secondary);border-radius:4px;height:8px;overflow:hidden}
+.attn-cell{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;transition:all .4s;cursor:pointer}
+.attn-grid{display:flex;flex-direction:column;gap:3px}
+.attn-row{display:flex;gap:3px}
+.tok-label{font-size:11px;color:var(--color-text-secondary);text-align:center;padding:2px 0}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin:12px 0 6px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.two-col{grid-template-columns:1fr}}
+</style>
+
+<div class="sim">
+<div class="qa-row" style="margin-bottom:14px">
+  <div class="qa-label">Query</div>
+  <input class="qa-inp" id="main-query" value="What is a neural network?" />
+  <button class="run-btn" onclick="runAll()">Run ↗</button>
+</div>
+
+<div class="stage-nav">
+  <button class="stage-btn active" onclick="showStage(0)">1 · Tokenize</button>
+  <button class="stage-btn" onclick="showStage(1)">2 · Token IDs</button>
+  <button class="stage-btn" onclick="showStage(2)">3 · Embeddings</button>
+  <button class="stage-btn" onclick="showStage(3)">4 · Transformer</button>
+  <button class="stage-btn" onclick="showStage(4)">5 · Vector DB</button>
+  <button class="stage-btn" onclick="showStage(5)">6 · Retrieval</button>
+  <button class="stage-btn" onclick="showStage(6)">7 · Generation</button>
+</div>
+
+<!-- STAGE 0: TOKENIZE -->
+<div class="panel active" id="panel-0">
+<div class="info-bar"><strong>Tokenizer</strong> — Text is split into subword units called <em>tokens</em>. One word can be 1 token or many. Images become patches. Audio becomes mel-spectral frames.</div>
+<div class="section-title">Input type</div>
+<div style="display:flex;gap:8px;margin-bottom:12px">
+  <button class="stage-btn active" id="tt-text" onclick="setTokenType('text')">Text</button>
+  <button class="stage-btn" id="tt-image" onclick="setTokenType('image')">Image</button>
+  <button class="stage-btn" id="tt-audio" onclick="setTokenType('audio')">Audio</button>
+</div>
+<div id="tok-vis"></div>
+</div>
+
+<!-- STAGE 1: TOKEN IDs -->
+<div class="panel" id="panel-1">
+<div class="info-bar"><strong>Token IDs</strong> — Every token maps to a <em>fixed integer</em> in the vocabulary (50k–100k entries). IDs are <strong>not random</strong> — they are permanently assigned during vocabulary construction (BPE or WordPiece) and never change after training.</div>
+<div class="section-title">Vocabulary lookup</div>
+<div id="token-id-vis"></div>
+<div class="info-bar" style="margin-top:12px">The same word always gets the same ID. "neural" = <strong>id 14925</strong> forever in GPT-2 vocab. Context changes <em>meaning</em>, not ID.</div>
+</div>
+
+<!-- STAGE 2: EMBEDDINGS -->
+<div class="panel" id="panel-2">
+<div class="info-bar"><strong>Embedding vectors</strong> — Each token ID maps to a high-dimensional float vector (~768–4096 dims) via a learned lookup table. Vectors encode <em>meaning</em> — similar words cluster nearby in this space. Weights are learned via backprop during pretraining.</div>
+<div class="two-col">
+  <div>
+    <div class="section-title">Token → vector (12 dims shown)</div>
+    <div id="emb-bars"></div>
+  </div>
+  <div>
+    <div class="section-title">2D semantic space</div>
+    <svg id="sem-space" viewBox="0 0 280 220" width="100%" style="background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+    </svg>
+  </div>
+</div>
+<div style="margin-top:10px;font-size:12px;color:var(--color-text-secondary)">Click a word cluster to explore its neighbours ↗</div>
+</div>
+
+<!-- STAGE 3: TRANSFORMER -->
+<div class="panel" id="panel-3">
+<div class="info-bar"><strong>Transformer attention</strong> — For each query token, the model computes a dot-product score against every other token (Q·K), applies softmax, and uses these weights to sum up values (V). High weights = "pays attention to". This is how meaning is resolved from context.</div>
+<div class="section-title" style="margin-bottom:4px">Click any token to see what it attends to</div>
+<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+  <div>
+    <div id="attn-token-row" style="display:flex;gap:4px;margin-bottom:6px"></div>
+    <div id="attn-grid-wrap"></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">Row = query token · Column = key token · Intensity = attention weight</div>
+  </div>
+  <div style="flex:1;min-width:160px">
+    <div class="section-title">Q·K·V mechanism</div>
+    <svg viewBox="0 0 200 260" width="100%">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="10" y="10" width="50" height="24" rx="4" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+      <text x="35" y="26" text-anchor="middle" font-size="11" fill="#185FA5" font-weight="500">Query Q</text>
+      <rect x="75" y="10" width="50" height="24" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+      <text x="100" y="26" text-anchor="middle" font-size="11" fill="#0F6E56" font-weight="500">Key K</text>
+      <rect x="140" y="10" width="50" height="24" rx="4" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+      <text x="165" y="26" text-anchor="middle" font-size="11" fill="#854F0B" font-weight="500">Value V</text>
+      <line x1="35" y1="34" x2="100" y2="66" stroke="#888" stroke-width="0.5" marker-end="url(#a2)" fill="none"/>
+      <line x1="100" y1="34" x2="100" y2="66" stroke="#888" stroke-width="0.5" marker-end="url(#a2)" fill="none"/>
+      <rect x="60" y="66" width="80" height="24" rx="4" fill="#EEEDFE" stroke="#3C3489" stroke-width="0.5"/>
+      <text x="100" y="82" text-anchor="middle" font-size="11" fill="#3C3489" font-weight="500">Dot product</text>
+      <line x1="100" y1="90" x2="100" y2="114" stroke="#888" stroke-width="0.5" marker-end="url(#a2)" fill="none"/>
+      <rect x="60" y="114" width="80" height="24" rx="4" fill="#EEEDFE" stroke="#3C3489" stroke-width="0.5"/>
+      <text x="100" y="130" text-anchor="middle" font-size="11" fill="#3C3489" font-weight="500">÷ √d · Softmax</text>
+      <line x1="100" y1="138" x2="100" y2="162" stroke="#888" stroke-width="0.5" marker-end="url(#a2)" fill="none"/>
+      <line x1="165" y1="34" x2="100" y2="162" stroke="#888" stroke-width="0.5" stroke-dasharray="4 3" marker-end="url(#a2)" fill="none"/>
+      <rect x="60" y="162" width="80" height="24" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+      <text x="100" y="178" text-anchor="middle" font-size="11" fill="#993C1D" font-weight="500">Weighted V</text>
+      <line x1="100" y1="186" x2="100" y2="210" stroke="#888" stroke-width="0.5" marker-end="url(#a2)" fill="none"/>
+      <rect x="60" y="210" width="80" height="24" rx="4" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+      <text x="100" y="226" text-anchor="middle" font-size="11" fill="#3B6D11" font-weight="500">Output token</text>
+    </svg>
+  </div>
+</div>
+</div>
+
+<!-- STAGE 4: VECTOR DB -->
+<div class="panel" id="panel-4">
+<div class="info-bar"><strong>Vector database</strong> — Knowledge is stored as high-dim embedding vectors (from documents, code, images, etc). At query time, the query embedding is compared to all stored vectors using cosine similarity or FAISS ANN. The closest vectors = most relevant content.</div>
+<div class="section-title">Similarity search (dot in 2D = simplified)</div>
+<div style="position:relative">
+<svg id="vdb-svg" viewBox="0 0 640 260" width="100%" style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);cursor:pointer" onclick="vdbClick(event)">
+<defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text x="320" y="24" text-anchor="middle" font-size="11" fill="#888">Click anywhere to move the query point</text>
+</svg>
+</div>
+<div class="legend">
+  <span><span class="leg-dot" style="background:#E24B4A"></span>Query vector</span>
+  <span><span class="leg-dot" style="background:#185FA5"></span>Knowledge chunks</span>
+  <span><span class="leg-dot" style="background:#1D9E75"></span>Top-K retrieved</span>
+</div>
+</div>
+
+<!-- STAGE 5: RETRIEVAL -->
+<div class="panel" id="panel-5">
+<div class="info-bar"><strong>Retrieval (RAG pipeline)</strong> — The query is embedded → nearest chunks are fetched from vector DB → scores are ranked → top chunks are injected into the prompt context window → the transformer now "knows" this information for generation.</div>
+<svg viewBox="0 0 640 340" width="100%" id="rag-svg">
+<defs><marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>
+</div>
+
+<!-- STAGE 6: GENERATION -->
+<div class="panel" id="panel-6">
+<div class="info-bar"><strong>Autoregressive generation</strong> — The transformer predicts the next token by attending over the full context (query + retrieved chunks). It samples from the probability distribution. Each new token is appended and the process repeats until EOS.</div>
+<div class="qa-row">
+  <div class="qa-label">Query</div>
+  <input class="qa-inp" id="gen-query" value="What is a neural network?" />
+  <button class="run-btn" onclick="runGen()">Generate ↗</button>
+</div>
+<div id="gen-output" class="output-box" style="font-family:var(--font-mono);font-size:13px;min-height:80px"></div>
+<div id="gen-prob" style="margin-top:10px"></div>
+</div>
+
+</div>
+
+<script>
+const IS_DARK = matchMedia('(prefers-color-scheme:dark)').matches;
+const COL = {
+  blue:   IS_DARK ? '#378ADD' : '#185FA5',
+  blueBg: IS_DARK ? '#0C447C' : '#E6F1FB',
+  teal:   IS_DARK ? '#1D9E75' : '#0F6E56',
+  tealBg: IS_DARK ? '#085041' : '#E1F5EE',
+  amber:  IS_DARK ? '#EF9F27' : '#854F0B',
+  amberBg:IS_DARK ? '#633806' : '#FAEEDA',
+  purple: IS_DARK ? '#7F77DD' : '#3C3489',
+  purpleBg:IS_DARK?'#3C3489'  : '#EEEDFE',
+  coral:  IS_DARK ? '#D85A30' : '#993C1D',
+  coralBg:IS_DARK ? '#712B13' : '#FAECE7',
+  gray:   IS_DARK ? '#888780' : '#5F5E5A',
+  grayBg: IS_DARK ? '#444441' : '#F1EFE8',
+  text:   IS_DARK ? '#c2c0b6' : '#3d3d3a',
+  text2:  IS_DARK ? '#888780' : '#73726c',
+  bg2:    IS_DARK ? '#2a2a28' : '#f5f4ef',
+  green:  IS_DARK ? '#639922' : '#3B6D11',
+  greenBg:IS_DARK ? '#27500A' : '#EAF3DE',
+  red:    IS_DARK ? '#E24B4A' : '#A32D2D',
+};
+
+let currentStage = 0;
+let tokenType = 'text';
+let activeAttnToken = 0;
+
+function showStage(i){
+  document.querySelectorAll('.panel').forEach((p,j)=>{
+    p.classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('.stage-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+  currentStage = i;
+  if(i===2) renderEmbeddings();
+  if(i===3) renderAttn();
+  if(i===4) initVDB();
+  if(i===5) renderRAG();
+}
+
+function runAll(){
+  document.getElementById('gen-query').value = document.getElementById('main-query').value;
+  showStage(0);
+  renderTokenizer();
+}
+
+function getQuery(){
+  return document.getElementById('main-query').value || 'What is a neural network?';
+}
+
+function tokenize(text){
+  const wds = text.replace(/[?!.,]/g,'').split(/\s+/).filter(Boolean);
+  const toks = [];
+  for(const w of wds){
+    if(w.length > 7) { toks.push(w.slice(0,Math.ceil(w.length/2)), w.slice(Math.ceil(w.length/2))); }
+    else toks.push(w);
+  }
+  return toks;
+}
+
+const FAKE_IDS = {
+  'What':1234,'is':318,'a':257,'neural':14925,'network':4626,
+  'net':4012,'work':1688,'How':2437,'does':857,'the':262,
+  'brain':3632,'learn':2193,'?':30,'!':0,'do':466,'I':40,
+  'train':4512,'model':2746,'an':281,'deep':2769
+};
+function tokenId(tok){
+  if(FAKE_IDS[tok]) return FAKE_IDS[tok];
+  let h = 0;
+  for(let c of tok){ h = (h*31 + c.charCodeAt(0)) % 50257; }
+  return Math.abs(h)+500;
+}
+
+function setTokenType(t){
+  tokenType = t;
+  ['text','image','audio'].forEach(x=>{
+    document.getElementById('tt-'+x).classList.toggle('active', x===t);
+  });
+  renderTokenizer();
+}
+
+function renderTokenizer(){
+  const vis = document.getElementById('tok-vis');
+  if(tokenType === 'text'){
+    const toks = tokenize(getQuery());
+    let html = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+    const colors = [COL.blueBg, COL.tealBg, COL.amberBg, COL.purpleBg, COL.coralBg];
+    const tcols = [COL.blue, COL.teal, COL.amber, COL.purple, COL.coral];
+    toks.forEach((t,i)=>{
+      const c = colors[i%5], tc = tcols[i%5];
+      html += `<div style="background:${c};color:${tc};padding:4px 10px;border-radius:6px;font-size:13px;font-weight:500;cursor:default" title="token ${i}">${t}</div>`;
+    });
+    html += '</div>';
+    html += `<div style="font-size:12px;color:${COL.text2}">→ <strong style="color:${COL.text}">${toks.length}</strong> tokens from "${getQuery()}"</div>`;
+    html += `<div style="margin-top:10px;font-size:12px;color:${COL.text2}">Subword tokenization (BPE): long or rare words split into sub-pieces. "neural" stays as one token; "networking" might split to "net"+"working".</div>`;
+    vis.innerHTML = html;
+  } else if(tokenType === 'image'){
+    let html = `<div style="margin-bottom:8px;font-size:12px;color:${COL.text2}">Images are divided into fixed-size <strong style="color:${COL.text}">patches</strong> (e.g. 16×16 px). Each patch is linearly projected to a vector = one token.</div>`;
+    html += '<svg viewBox="0 0 320 220" width="100%" style="background:var(--color-background-secondary);border-radius:8px">';
+    for(let r=0;r<5;r++) for(let c=0;c<6;c++){
+      const x = 20+c*45, y = 20+r*36;
+      const colors2 = ['#E6F1FB','#E1F5EE','#FAEEDA','#EEEDFE','#FAECE7'];
+      html += `<rect x="${x}" y="${y}" width="42" height="33" rx="3" fill="${colors2[(r*6+c)%5]}" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>`;
+      html += `<text x="${x+21}" y="${y+20}" text-anchor="middle" font-size="10" fill="${COL.text2}">P${r*6+c+1}</text>`;
+    }
+    html += `<text x="160" y="210" text-anchor="middle" font-size="11" fill="${COL.text2}">30 patches = 30 image tokens</text>`;
+    html += '</svg>';
+    vis.innerHTML = html;
+  } else {
+    let html = `<div style="margin-bottom:8px;font-size:12px;color:${COL.text2}">Audio is converted to <strong style="color:${COL.text}">mel-spectrogram</strong> frames. Each 20ms window = one token. Speech → text (Whisper-style).</div>`;
+    html += '<svg viewBox="0 0 320 180" width="100%" style="background:var(--color-background-secondary);border-radius:8px">';
+    const freqs = [0.3,0.7,1.2,0.9,0.4,1.1,0.8,0.5,1.3,0.6,0.9,1.0,0.4,0.7,1.2,0.8];
+    for(let i=0;i<16;i++){
+      const x=10+i*19, h=freqs[i]*100, y=150-h;
+      const intensity = Math.floor(freqs[i]*200);
+      html += `<rect x="${x}" y="${y}" width="16" height="${h}" rx="2" fill="rgba(55,138,221,${0.3+freqs[i]*0.7})"/>`;
+      html += `<text x="${x+8}" y="168" text-anchor="middle" font-size="9" fill="${COL.text2}">F${i+1}</text>`;
+    }
+    html += `<text x="160" y="14" text-anchor="middle" font-size="11" fill="${COL.text2}">Mel-spectrogram → 16 audio tokens</text>`;
+    html += '</svg>';
+    vis.innerHTML = html;
+  }
+}
+
+function renderTokenIDs(){
+  const toks = tokenize(getQuery());
+  let html = '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:12px;width:100%">';
+  html += `<tr><th style="padding:6px 10px;text-align:left;color:${COL.text2};border-bottom:0.5px solid var(--color-border-tertiary)">Token</th><th style="padding:6px 10px;text-align:center;color:${COL.text2};border-bottom:0.5px solid var(--color-border-tertiary)">Token ID</th><th style="padding:6px 10px;text-align:left;color:${COL.text2};border-bottom:0.5px solid var(--color-border-tertiary)">Always same?</th></tr>`;
+  toks.forEach((t,i)=>{
+    const id = tokenId(t);
+    html += `<tr style="background:${i%2?'var(--color-background-secondary)':'var(--color-background-primary)'}">`;
+    html += `<td style="padding:6px 10px;font-weight:500;color:${COL.blue}">"${t}"</td>`;
+    html += `<td style="padding:6px 10px;text-align:center;font-family:var(--font-mono);color:${COL.amber}">${id}</td>`;
+    html += `<td style="padding:6px 10px;color:${COL.teal}">✓ Fixed forever</td>`;
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  html += `<div style="margin-top:10px;padding:8px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:12px;color:${COL.text2}">`;
+  html += `Vocabulary built once using <strong style="color:${COL.text}">Byte-Pair Encoding (BPE)</strong>. Frequent subwords get low IDs. Context changes <em>meaning</em> — not ID. "bank" (river) and "bank" (finance) share the same token ID but produce different embeddings via context.`;
+  html += '</div>';
+  document.getElementById('token-id-vis').innerHTML = html;
+}
+
+function randVec(seed, n=12){
+  const v = [];
+  let s = seed;
+  for(let i=0;i<n;i++){
+    s = (s*1664525+1013904223)&0xffffffff;
+    v.push(((s>>>16)/65535)*2-1);
+  }
+  return v;
+}
+
+function renderEmbeddings(){
+  const toks = tokenize(getQuery());
+  const tok = toks[0] || 'What';
+  const vec = randVec(tokenId(tok));
+  const dims = ['d1','d2','d3','d4','d5','d6','d7','d8','d9','d10','d11','d12'];
+  let html = `<div style="margin-bottom:6px;font-size:12px;color:${COL.text2}">Token: <strong style="color:${COL.blue}">"${tok}"</strong> → 12-dim vector (real models: 768–4096 dims)</div>`;
+  vec.forEach((v,i)=>{
+    const pct = Math.round((v+1)/2*100);
+    const barColor = v > 0 ? COL.blue : COL.coral;
+    html += `<div class="vec-row"><span class="vec-label">${dims[i]}</span><div class="vec-track"><div class="vec-bar" style="width:${pct}%;background:${barColor}"></div></div><span style="font-size:11px;color:${COL.text2};min-width:40px;text-align:right">${v.toFixed(3)}</span></div>`;
+  });
+  document.getElementById('emb-bars').innerHTML = html;
+
+  const words = [
+    {w:'neural',x:80,y:60,c:COL.blue},
+    {w:'network',x:105,y:85,c:COL.blue},
+    {w:'deep',x:65,y:90,c:COL.blue},
+    {w:'learning',x:90,y:108,c:COL.blue},
+    {w:'brain',x:55,y:140,c:COL.teal},
+    {w:'neuron',x:80,y:165,c:COL.teal},
+    {w:'dog',x:195,y:60,c:COL.amber},
+    {w:'cat',x:215,y:85,c:COL.amber},
+    {w:'pet',x:200,y:110,c:COL.amber},
+    {w:'Paris',x:185,y:160,c:COL.coral},
+    {w:'city',x:215,y:180,c:COL.coral},
+  ];
+  const sv = document.getElementById('sem-space');
+  let svHTML = '';
+  words.forEach(w=>{
+    svHTML += `<circle cx="${w.x}" cy="${w.y}" r="3" fill="${w.c}" opacity="0.8"/>`;
+    svHTML += `<text x="${w.x+5}" y="${w.y+4}" font-size="10" fill="${w.c}">${w.w}</text>`;
+  });
+  svHTML += `<ellipse cx="84" cy="85" rx="38" ry="30" fill="none" stroke="${COL.blue}" stroke-width="0.5" stroke-dasharray="4 3" opacity="0.6"/>`;
+  svHTML += `<text x="84" y="200" text-anchor="middle" font-size="10" fill="${COL.text2}">ML cluster</text>`;
+  svHTML += `<ellipse cx="202" cy="85" rx="28" ry="22" fill="none" stroke="${COL.amber}" stroke-width="0.5" stroke-dasharray="4 3" opacity="0.6"/>`;
+  svHTML += `<text x="202" y="200" text-anchor="middle" font-size="10" fill="${COL.text2}">animal cluster</text>`;
+  svHTML += `<text x="140" y="215" text-anchor="middle" font-size="10" fill="${COL.text2}">2D projection of 768-dim space</text>`;
+  sv.innerHTML = svHTML;
+}
+
+let attnTokens = [];
+function renderAttn(){
+  const toks = tokenize(getQuery()).slice(0,6);
+  attnTokens = toks;
+  const row = document.getElementById('attn-token-row');
+  row.innerHTML = '';
+  toks.forEach((t,i)=>{
+    const d = document.createElement('div');
+    d.style.cssText = `padding:5px 10px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:${i===activeAttnToken?COL.blueBg:'var(--color-background-primary)'};color:${i===activeAttnToken?COL.blue:'var(--color-text-secondary)'}`;
+    d.textContent = t;
+    d.onclick = ()=>{ activeAttnToken=i; renderAttn(); };
+    row.appendChild(d);
+  });
+  renderAttnGrid(toks);
+}
+
+function attnWeight(q, k, qi, ki){
+  const qs = tokenId(q), ks = tokenId(k);
+  let sim = 0;
+  const qv = randVec(qs, 8), kv = randVec(ks, 8);
+  for(let i=0;i<8;i++) sim += qv[i]*kv[i];
+  if(qi===ki) sim += 2;
+  sim = Math.max(0, sim);
+  return sim;
+}
+
+function renderAttnGrid(toks){
+  const wrap = document.getElementById('attn-grid-wrap');
+  const n = toks.length;
+  const weights = toks.map(k => attnWeight(toks[activeAttnToken], k, activeAttnToken, toks.indexOf(k)));
+  const sum = weights.reduce((a,b)=>a+b,0)||1;
+  const normed = weights.map(w=>w/sum);
+
+  let html = '<div class="attn-grid">';
+  html += '<div class="attn-row" style="gap:3px">';
+  html += '<div style="width:36px"></div>';
+  toks.forEach(t=>{
+    html += `<div class="tok-label" style="width:36px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t}</div>`;
+  });
+  html += '</div>';
+  toks.forEach((qt,qi)=>{
+    html += '<div class="attn-row">';
+    html += `<div class="tok-label" style="width:36px;text-align:right;padding-right:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${qt}</div>`;
+    toks.forEach((kt,ki)=>{
+      const w_ij = attnWeight(qt, kt, qi, ki);
+      const sum2 = toks.map(k=>attnWeight(qt,k,qi,toks.indexOf(k))).reduce((a,b)=>a+b,0)||1;
+      const alpha = w_ij/sum2;
+      const intensity = Math.min(255, Math.round(alpha*600));
+      const isActive = qi===activeAttnToken;
+      const bg = isActive ? `rgba(55,138,221,${0.1+alpha*0.9})` : `rgba(55,138,221,${0.05+alpha*0.3})`;
+      html += `<div class="attn-cell" style="background:${bg};color:${COL.text};font-size:10px">${(alpha*100).toFixed(0)}%</div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+let vdbDots = [];
+let qPoint = {x:320, y:130};
+function initVDB(){
+  if(vdbDots.length) { drawVDB(); return; }
+  const topics = [
+    {label:'Neural nets',x:180,y:90},
+    {label:'Backprop',x:155,y:130},
+    {label:'Deep learning',x:200,y:60},
+    {label:'Gradient',x:140,y:155},
+    {label:'Weights',x:220,y:110},
+    {label:'Paris',x:480,y:80},
+    {label:'France',x:510,y:110},
+    {label:'Eiffel',x:460,y:120},
+    {label:'Dog',x:430,y:180},
+    {label:'Cat',x:460,y:200},
+    {label:'Pets',x:410,y:200},
+    {label:'Python',x:300,y:60},
+    {label:'Code',x:330,y:85},
+    {label:'Script',x:280,y:85},
+  ];
+  vdbDots = topics;
+  qPoint = {x:190, y:100};
+  drawVDB();
+}
+
+function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+function drawVDB(){
+  const svg = document.getElementById('vdb-svg');
+  const dists = vdbDots.map(d=>({...d, d:dist(d,qPoint)}));
+  dists.sort((a,b)=>a.d-b.d);
+  const topK = new Set(dists.slice(0,3).map(d=>d.label));
+  let html = '<defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+  html += `<text x="320" y="24" text-anchor="middle" font-size="11" fill="${COL.text2}">Click anywhere to move the query point</text>`;
+  dists.slice(0,3).forEach(d=>{
+    html += `<line x1="${qPoint.x}" y1="${qPoint.y}" x2="${d.x}" y2="${d.y}" stroke="${COL.teal}" stroke-width="0.5" stroke-dasharray="4 3" opacity="0.7"/>`;
+  });
+  vdbDots.forEach(d=>{
+    const isTop = topK.has(d.label);
+    const col = isTop ? COL.teal : COL.blue;
+    const r = isTop ? 7 : 5;
+    html += `<circle cx="${d.x}" cy="${d.y}" r="${r}" fill="${col}" opacity="${isTop?1:0.5}"/>`;
+    html += `<text x="${d.x+9}" y="${d.y+4}" font-size="10" fill="${col}">${d.label}</text>`;
+  });
+  html += `<circle cx="${qPoint.x}" cy="${qPoint.y}" r="9" fill="${COL.red}" opacity="0.9"/>`;
+  html += `<text x="${qPoint.x+12}" y="${qPoint.y+4}" font-size="11" font-weight="500" fill="${COL.red}">Query</text>`;
+  const scoreHtml = `<div style="margin-top:8px;font-size:12px;color:${COL.text2}">Top-3 retrieved: ` + dists.slice(0,3).map(d=>`<span class="chip chip-teal">${d.label} (${(1-d.d/400).toFixed(2)})</span>`).join(' ') + '</div>';
+  svg.innerHTML = html;
+  const existing = svg.nextElementSibling;
+  if(existing && existing.classList && existing.classList.contains('vdb-scores')) existing.innerHTML = scoreHtml;
+  else { const div=document.createElement('div'); div.className='vdb-scores'; div.innerHTML=scoreHtml; svg.parentNode.insertBefore(div, svg.nextSibling); }
+}
+
+function vdbClick(e){
+  const svg = document.getElementById('vdb-svg');
+  const rect = svg.getBoundingClientRect();
+  const vw = 640, vh = 260;
+  qPoint.x = Math.round((e.clientX - rect.left) / rect.width * vw);
+  qPoint.y = Math.round((e.clientY - rect.top) / rect.height * vh);
+  qPoint.x = Math.max(10, Math.min(vw-10, qPoint.x));
+  qPoint.y = Math.max(30, Math.min(vh-10, qPoint.y));
+  drawVDB();
+}
+
+function renderRAG(){
+  const svg = document.getElementById('rag-svg');
+  const steps = [
+    {label:'User query',sub:'What is a neural network?',x:30,y:40,w:160,h:50,c:COL.blueBg,tc:COL.blue},
+    {label:'Query encoder',sub:'Embed query → vector',x:250,y:40,w:140,h:50,c:COL.purpleBg,tc:COL.purple},
+    {label:'Vector DB',sub:'ANN similarity search',x:450,y:40,w:150,h:50,c:COL.amberBg,tc:COL.amber},
+    {label:'Retrieved chunks',sub:'Top-K relevant docs',x:450,y:160,w:150,h:50,c:COL.tealBg,tc:COL.teal},
+    {label:'Prompt builder',sub:'Query + context injected',x:250,y:160,w:140,h:50,c:COL.purpleBg,tc:COL.purple},
+    {label:'Transformer',sub:'Generate response',x:30,y:160,w:160,h:50,c:COL.greenBg,tc:COL.green},
+  ];
+  const arrows = [
+    [190,65,248,65],[390,65,448,65],[525,90,525,158],[450,185,392,185],[248,185,192,185]
+  ];
+  let html = '<defs><marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+  steps.forEach(s=>{
+    html += `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="8" fill="${s.c}" stroke="${s.tc}" stroke-width="0.5"/>`;
+    html += `<text x="${s.x+s.w/2}" y="${s.y+22}" text-anchor="middle" font-size="12" font-weight="500" fill="${s.tc}">${s.label}</text>`;
+    html += `<text x="${s.x+s.w/2}" y="${s.y+38}" text-anchor="middle" font-size="10" fill="${s.tc}">${s.sub}</text>`;
+  });
+  arrows.forEach(([x1,y1,x2,y2])=>{
+    html += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${COL.text2}" stroke-width="1" marker-end="url(#a4)" fill="none"/>`;
+  });
+  html += `<text x="320" y="315" text-anchor="middle" font-size="11" fill="${COL.text2}">RAG: retrieved knowledge augments the transformer's generation</text>`;
+  svg.innerHTML = html;
+}
+
+const GEN_RESPONSES = {
+  default: "A neural network is a computational model inspired by the human brain. It consists of layers of interconnected nodes (neurons) that process input signals. During training, weights are adjusted via backpropagation to minimise prediction error.",
+  train: "Training a model involves feeding labelled data forward through the network, computing a loss function against ground truth, then backpropagating gradients to update weights via an optimiser like Adam.",
+  embed: "Embeddings map discrete tokens to continuous high-dimensional vectors. Similar concepts cluster nearby in this space — enabling semantic similarity search and transfer learning.",
+};
+
+let genInterval = null;
+function runGen(){
+  const q = document.getElementById('gen-query').value.toLowerCase();
+  let resp = GEN_RESPONSES.default;
+  if(q.includes('train') || q.includes('backprop')) resp = GEN_RESPONSES.train;
+  if(q.includes('embed') || q.includes('vector')) resp = GEN_RESPONSES.embed;
+  const out = document.getElementById('gen-output');
+  const probDiv = document.getElementById('gen-prob');
+  out.textContent = '';
+  if(genInterval) clearInterval(genInterval);
+  const tokens = resp.split(/(\s+)/);
+  let i = 0;
+  genInterval = setInterval(()=>{
+    if(i >= tokens.length){ clearInterval(genInterval); showProbs(tokens.slice(-5)); return; }
+    out.textContent += tokens[i++];
+  }, 60);
+}
+
+function showProbs(lastToks){
+  const candidates = ['model','algorithm','function','process','system','architecture'];
+  const probs = candidates.map(w=>({w, p: Math.random()}));
+  const sum = probs.reduce((a,b)=>a+b.p,0);
+  probs.forEach(p=>p.p/=sum);
+  probs.sort((a,b)=>b.p-a.p);
+  let html = `<div style="font-size:12px;color:${COL.text2};margin-bottom:6px">Next-token probability distribution:</div><div style="display:flex;flex-direction:column;gap:4px">`;
+  probs.slice(0,5).forEach((p,i)=>{
+    const pct = Math.round(p.p*100);
+    html += `<div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--font-mono);min-width:90px;font-size:12px;color:${i===0?COL.blue:COL.text2}">${p.w}</span><div style="flex:1;background:var(--color-background-secondary);border-radius:4px;height:8px"><div style="width:${pct*3}px;max-width:100%;height:8px;border-radius:4px;background:${i===0?COL.blue:COL.gray}"></div></div><span style="font-size:11px;color:${COL.text2};min-width:32px">${pct}%</span></div>`;
+  });
+  html += '</div>';
+  document.getElementById('gen-prob').innerHTML = html;
+}
+
+renderTokenizer();
+renderTokenIDs();
+document.getElementById('panel-1').addEventListener('transitionend', renderTokenIDs);
+
+document.querySelector('[onclick="showStage(1)"]').addEventListener('click', renderTokenIDs);
+
+document.getElementById('main-query').addEventListener('input', ()=>{
+  if(currentStage===0) renderTokenizer();
+  if(currentStage===1) renderTokenIDs();
+});
+</script>
