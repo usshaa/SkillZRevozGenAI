@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Multimodal AI Simulation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f8fc;--bg2:#ffffff;--bg3:#f0f2f8;--bg4:#e8eaf4;
+  --border:#dde1f0;--border2:#c8ceea;
+  --text:#1a1d2e;--text2:#5a5f7a;--text3:#9099b8;
+  --blue:#2563eb;--blue-dim:#dbeafe;--blue-glow:rgba(37,99,235,0.08);
+  --teal:#0d9488;--teal-dim:#ccfbf1;
+  --amber:#d97706;--amber-dim:#fef3c7;
+  --purple:#7c3aed;--purple-dim:#ede9fe;
+  --coral:#dc2626;--coral-dim:#fee2e2;
+  --green:#16a34a;--green-dim:#dcfce7;
+  --pink:#db2777;--pink-dim:#fce7f3;
+  --font-head:'Syne',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+
+body{
+  font-family:var(--font-mono);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:20px;
+}
+
+.sim{max-width:760px;padding:0}
+
+/* ── header ── */
+.sim-header{
+  display:flex;align-items:baseline;gap:12px;
+  margin-bottom:18px;border-bottom:1px solid var(--border);
+  padding-bottom:14px;
+}
+.sim-title{
+  font-family:var(--font-head);font-size:17px;font-weight:800;
+  color:var(--text);letter-spacing:-.3px;
+}
+.sim-badge{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;
+  padding:2px 8px;border-radius:2px;background:var(--blue-dim);
+  color:var(--blue);border:1px solid var(--border2);text-transform:uppercase;
+}
+
+/* ── modality picker ── */
+.modality-bar{display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.mod-btn{
+  flex:1;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:500;
+  background:var(--bg2);color:var(--text2);border:none;cursor:pointer;
+  border-right:1px solid var(--border);transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.mod-btn:last-child{border-right:none}
+.mod-btn.active{background:var(--blue-dim);color:var(--blue)}
+.mod-btn .mod-icon{font-size:16px}
+.mod-btn .mod-label{font-size:10px;letter-spacing:.5px}
+
+/* ── stage nav ── */
+.stage-nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.stage-btn{
+  padding:5px 10px;border:1px solid var(--border);border-radius:3px;
+  background:var(--bg2);color:var(--text2);font-family:var(--font-mono);
+  font-size:10px;cursor:pointer;transition:all .18s;
+  white-space:nowrap;
+}
+.stage-btn.active{
+  background:var(--blue-dim);color:var(--blue);
+  border-color:var(--blue);
+}
+.stage-btn:hover:not(.active){background:var(--bg3);color:var(--text)}
+
+/* ── panel ── */
+.panel{display:none;animation:fadeIn .28s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── info-bar ── */
+.info-bar{
+  background:var(--bg3);border-left:2px solid var(--blue);
+  padding:10px 14px;border-radius:0 3px 3px 0;
+  font-size:11.5px;color:var(--text2);margin-bottom:14px;
+  line-height:1.7;letter-spacing:.01em;
+}
+.info-bar strong{color:var(--text)}
+.info-bar code{
+  font-family:var(--font-mono);font-size:11px;
+  background:var(--bg4);padding:1px 5px;border-radius:2px;color:var(--blue);
+}
+
+/* ── section title ── */
+.sec{font-family:var(--font-head);font-size:12px;font-weight:700;
+  color:var(--text2);text-transform:uppercase;letter-spacing:2px;
+  margin:12px 0 8px;}
+
+/* ── file drop zone ── */
+.drop-zone{
+  border:1.5px dashed var(--border2);border-radius:4px;
+  padding:20px;text-align:center;cursor:pointer;
+  background:var(--bg2);transition:all .2s;margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.drop-zone:hover{border-color:var(--blue);background:var(--blue-glow)}
+.drop-zone .dz-icon{font-size:26px;margin-bottom:6px}
+.drop-zone .dz-label{font-size:12px;color:var(--text2)}
+.drop-zone .dz-sub{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ── chips ── */
+.chip{display:inline-block;padding:2px 8px;border-radius:2px;
+  font-size:11px;font-weight:500;margin:2px;font-family:var(--font-mono)}
+.chip-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.chip-teal{background:#ccfbf1;color:#0f766e;border:1px solid #99f6e4}
+.chip-amber{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.chip-purple{background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe}
+.chip-coral{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.chip-green{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.chip-pink{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}
+
+/* ── two-col ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.two-col{grid-template-columns:1fr}}
+
+/* ── table ── */
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{
+  padding:6px 10px;text-align:left;color:var(--text2);
+  border-bottom:1px solid var(--border);font-weight:500;
+  font-family:var(--font-head);font-size:11px;letter-spacing:.5px;
+}
+.data-table td{
+  padding:6px 10px;color:var(--text);border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg3)}
+
+/* ── output box ── */
+.output-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:3px;
+  padding:12px;font-size:12px;color:var(--text);min-height:50px;
+  line-height:1.8;margin-top:8px;position:relative;
+}
+.output-box .cursor{
+  display:inline-block;width:7px;height:13px;
+  background:var(--blue);vertical-align:text-bottom;
+  animation:blink .9s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── qa row ── */
+.qa-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.qa-label{min-width:56px;font-size:10px;font-weight:500;
+  color:var(--text2);text-transform:uppercase;letter-spacing:.8px}
+.qa-inp{
+  flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:3px;
+  font-size:12px;font-family:var(--font-mono);
+  background:var(--bg2);color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.qa-inp:focus{border-color:var(--blue)}
+.run-btn{
+  padding:7px 14px;border:1px solid var(--blue);border-radius:3px;
+  background:var(--blue-dim);color:var(--blue);font-size:11px;
+  font-family:var(--font-mono);cursor:pointer;white-space:nowrap;
+  transition:all .2s;
+}
+.run-btn:hover{background:var(--blue);color:#fff}
+
+/* ── progress bar ── */
+.prog-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:4px 0}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* ── invoice grid ── */
+.inv-doc{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:4px;
+  padding:16px;font-size:11px;margin-bottom:12px;position:relative;
+}
+.inv-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.inv-logo{font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--blue)}
+.inv-badge{
+  text-align:right;font-size:10px;color:var(--text2);line-height:1.8;
+}
+.inv-badge strong{color:var(--text);display:block;font-size:13px}
+.inv-table{width:100%;border-collapse:collapse;margin:10px 0}
+.inv-table th{
+  padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;
+  letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border);
+}
+.inv-table td{padding:5px 8px;border-bottom:1px solid var(--border);color:var(--text)}
+.inv-total{
+  text-align:right;margin-top:10px;
+  font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--teal);
+}
+.inv-total span{font-size:10px;color:var(--text2);display:block;font-family:var(--font-mono);font-weight:400}
+
+/* ── highlight overlays on doc ── */
+.inv-doc .hl-box{
+  position:absolute;border:2px solid;border-radius:2px;pointer-events:none;
+  animation:hl-pulse 2s ease-in-out infinite;
+}
+@keyframes hl-pulse{0%,100%{opacity:.8}50%{opacity:.3}}
+
+/* ── pipeline flow ── */
+.pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:12px 0}
+.pipe-step{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:3px;padding:8px 12px;font-size:11px;
+  text-align:center;flex:1;min-width:80px;position:relative;
+}
+.pipe-step .ps-icon{font-size:18px;margin-bottom:3px}
+.pipe-step .ps-label{font-family:var(--font-head);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--text2);}
+.pipe-step .ps-sub{font-size:9px;color:var(--text3);margin-top:2px;line-height:1.4}
+.pipe-arrow{color:var(--text3);font-size:14px;padding:0 4px;flex-shrink:0}
+
+/* ── image patch grid ── */
+.patch-grid{display:grid;gap:2px;margin:10px 0}
+.patch{
+  border-radius:2px;display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;color:rgba(255,255,255,.6);
+  transition:all .3s;cursor:pointer;aspect-ratio:1;
+}
+
+/* ── field extraction card ── */
+.field-card{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border:1px solid var(--border);border-radius:3px;
+  padding:8px 12px;margin:4px 0;cursor:pointer;transition:all .2s;
+}
+.field-card:hover,.field-card.active{border-color:var(--blue);background:var(--blue-glow)}
+.field-card .fc-key{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px}
+.field-card .fc-val{font-size:13px;color:var(--text);font-family:var(--font-head);font-weight:600}
+.field-card .fc-conf{font-size:10px;padding:2px 6px;border-radius:2px}
+
+/* ── confidence meter ── */
+.conf-ring{display:inline-flex;align-items:center;gap:6px}
+
+/* ── legend row ── */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;font-size:10px;color:var(--text2);align-items:center}
+.leg-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px}
+
+/* ── scan line animation ── */
+@keyframes scanY{0%{transform:translateY(0)}100%{transform:translateY(var(--scan-h,200px))}}
+.scan-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--teal),transparent);
+  animation:scanY 2s ease-in-out infinite alternate;
+  pointer-events:none;opacity:.6;
+}
+
+/* ── flow line animation ── */
+@keyframes dash{to{stroke-dashoffset:-20}}
+
+/* ── modal overlay ── */
+.modal{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+.modal.open{display:flex}
+.modal-box{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:6px;
+  padding:24px;max-width:420px;width:90%;
+}
+.modal-title{font-family:var(--font-head);font-size:16px;font-weight:700;
+  color:var(--text);margin-bottom:12px;}
+.modal-close{float:right;background:none;border:none;color:var(--text2);
+  font-size:18px;cursor:pointer;line-height:1}
+
+/* ── tab strip inside panel ── */
+.tab-strip{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tab-btn{
+  padding:7px 14px;font-size:11px;font-family:var(--font-mono);
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:-1px;
+}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── anomaly badge ── */
+.anomaly{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;
+  border-radius:2px;padding:3px 8px;font-size:10px;font-weight:500;
+}
+.ok-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#dcfce7;color:#15803d;border:1px solid #86efac;
+  border-radius:2px;padding:3px 8px;font-size:10px;font-weight:500;
+}
+</style>
+</head>
+<body>
+<div class="sim">
+
+<!-- HEADER -->
+<div class="sim-header">
+  <div class="sim-title">Multimodal AI Systems</div>
+  <div class="sim-badge">Interactive Simulation</div>
+</div>
+
+<!-- MODALITY PICKER -->
+<div class="sec">Select Input Modality</div>
+<div class="modality-bar" id="modality-bar">
+  <button class="mod-btn active" onclick="setModality('text')" id="mod-text">
+    <span class="mod-icon">📝</span><span class="mod-label">Text</span>
+  </button>
+  <button class="mod-btn" onclick="setModality('image')" id="mod-image">
+    <span class="mod-icon">🖼️</span><span class="mod-label">Image</span>
+  </button>
+  <button class="mod-btn" onclick="setModality('table')" id="mod-table">
+    <span class="mod-icon">📊</span><span class="mod-label">Table</span>
+  </button>
+  <button class="mod-btn" onclick="setModality('document')" id="mod-document">
+    <span class="mod-icon">📄</span><span class="mod-label">Document</span>
+  </button>
+  <button class="mod-btn" onclick="setModality('invoice')" id="mod-invoice">
+    <span class="mod-icon">🧾</span><span class="mod-label">Invoice</span>
+  </button>
+</div>
+
+<!-- STAGE NAV -->
+<div class="stage-nav" id="stage-nav"></div>
+
+<!-- PANELS CONTAINER -->
+<div id="panels-container"></div>
+
+</div>
+
+<script>
+/* ─────── colour palette ─────── */
+const C = {
+  blue:'#2563eb', blueDim:'#dbeafe', blueGlow:'rgba(37,99,235,0.08)',
+  teal:'#0d9488', tealDim:'#ccfbf1',
+  amber:'#d97706', amberDim:'#fef3c7',
+  purple:'#7c3aed', purpleDim:'#ede9fe',
+  coral:'#dc2626', coralDim:'#fee2e2',
+  green:'#16a34a', greenDim:'#dcfce7',
+  pink:'#db2777', pinkDim:'#fce7f3',
+  text:'#1a1d2e', text2:'#5a5f7a', text3:'#9099b8',
+  bg:'#f7f8fc', bg2:'#ffffff', bg3:'#f0f2f8', bg4:'#e8eaf4',
+  border:'#dde1f0', border2:'#c8ceea',
+};
+
+/* ─────── modality definitions ─────── */
+const MODALITIES = {
+  text:{
+    label:'Text',
+    stages:['Encode','Attention','Reasoning','Generate'],
+    infos:[
+      `<strong>Text Encoding</strong> — Raw text is tokenised into subword units, mapped to high-dim embedding vectors, then enriched with positional encoding. The result is a dense matrix passed to the transformer stack.`,
+      `<strong>Cross-modal Attention</strong> — In a multimodal model, text tokens attend to <em>all other modality tokens</em> (image patches, table cells, page regions) via cross-attention heads. This grounds language in perception.`,
+      `<strong>Chain-of-Thought Reasoning</strong> — The model maintains an internal scratch-pad. Token by token it builds an intermediate reasoning chain before committing to the final answer.`,
+      `<strong>Text Generation</strong> — Autoregressive decoding: the model samples from the softmax probability distribution, appending each new token to the context window until an end-of-sequence token is produced.`,
+    ],
+    render:[renderTextEncode, renderCrossAttn, renderCoT, renderGenerate],
+  },
+  image:{
+    label:'Image',
+    stages:['Patch Embed','Vision Encoder','Cross-Attn','Caption'],
+    infos:[
+      `<strong>Vision Patch Embedding</strong> — Images are divided into N×N patches (e.g. 14×14 px). Each patch is flattened and projected to the same embedding dimension as text tokens — creating <em>visual tokens</em>.`,
+      `<strong>Vision Transformer (ViT)</strong> — Visual tokens pass through transformer encoder layers with self-attention. The model learns which patches are semantically related — heads activate for edges, objects, faces.`,
+      `<strong>Image–Text Cross-Attention</strong> — Fused multimodal layers let text tokens query visual features. "What colour is the car?" attends to car-region patches. Image tokens can also attend to question context.`,
+      `<strong>Visual Grounding & Captioning</strong> — The decoder generates text conditioned on the fused representation. Bounding boxes, dense captions, and answers to visual questions are all produced this way.`,
+    ],
+    render:[renderPatchEmbed, renderViT, renderImgCrossAttn, renderCaption],
+  },
+  table:{
+    label:'Table / Spreadsheet',
+    stages:['Parse','Cell Encode','Row Reason','Insight'],
+    infos:[
+      `<strong>Table Parsing</strong> — Structured data is parsed into row × column cells. Headers are identified and typed (numeric, categorical, date). Null handling and unit normalisation happen here.`,
+      `<strong>Cell Encoding</strong> — Each cell becomes a token enriched with structural metadata: (row_idx, col_idx, header_name, data_type). This lets attention heads learn row/column relationships.`,
+      `<strong>Row-level Reasoning</strong> — Aggregations, comparisons, trend detection and anomaly flags are derived via attention over column-aligned cells. No symbolic code — fully neural.`,
+      `<strong>Natural Language Insight</strong> — Findings are decoded into coherent English sentences with supporting numbers, ready to be embedded in reports or dashboards.`,
+    ],
+    render:[renderTableParse, renderCellEncode, renderRowReason, renderInsight],
+  },
+  document:{
+    label:'Document / Report',
+    stages:['OCR/Layout','Segment','Semantic','Q&A'],
+    infos:[
+      `<strong>OCR & Layout Analysis</strong> — A vision model detects text regions, tables, figures, and headers. OCR converts pixels → strings. Spatial coordinates (x, y, w, h) are preserved as structural tokens.`,
+      `<strong>Document Segmentation</strong> — The document is split into logical blocks: title, abstract, section headings, body paragraphs, tables, captions. Each block gets a type embedding.`,
+      `<strong>Semantic Indexing</strong> — Block embeddings are stored in a vector DB. At query time, the query vector retrieves the most relevant sections — RAG over the document's own content.`,
+      `<strong>Document Q&A</strong> — Retrieved chunks are injected into the prompt. The model answers grounded in the source, with page/section citations.`,
+    ],
+    render:[renderOCR, renderSegment, renderSemantic, renderDocQA],
+  },
+  invoice:{
+    label:'Invoice / Financial',
+    stages:['Scan','Extract Fields','Validate','Report'],
+    infos:[
+      `<strong>Invoice Scanning</strong> — A vision encoder scans the document. Detected zones: vendor info, line items, totals, tax, due dates. Confidence scores are assigned per detected region.`,
+      `<strong>Field Extraction</strong> — Structured fields are extracted using named entity recognition fused with layout attention. The model maps each field to a schema (vendor, amount, currency, date, PO number…).`,
+      `<strong>Validation & Anomaly Detection</strong> — Cross-field logic checks: do line items sum to subtotal? Is the tax rate plausible? Duplicate invoice detection via embedding similarity against historical records.`,
+      `<strong>Financial Report Generation</strong> — Extracted, validated data is aggregated across invoices into cash-flow summaries, overdue alerts, and vendor analytics — all generated from raw PDF inputs.`,
+    ],
+    render:[renderInvoiceScan, renderFieldExtract, renderValidate, renderFinancialReport],
+  },
+};
+
+let currentModality = 'text';
+let currentStage = 0;
+let genTimer = null;
+
+/* ─────── init ─────── */
+function setModality(m){
+  currentModality = m;
+  currentStage = 0;
+  document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mod-'+m).classList.add('active');
+  buildNav();
+  buildPanels();
+  activateStage(0);
+}
+
+function buildNav(){
+  const stages = MODALITIES[currentModality].stages;
+  const nav = document.getElementById('stage-nav');
+  nav.innerHTML = stages.map((s,i)=>
+    `<button class="stage-btn${i===0?' active':''}" onclick="activateStage(${i})">${i+1} · ${s}</button>`
+  ).join('');
+}
+
+function buildPanels(){
+  const stages = MODALITIES[currentModality].stages;
+  const infos  = MODALITIES[currentModality].infos;
+  const cont   = document.getElementById('panels-container');
+  cont.innerHTML = stages.map((s,i)=>
+    `<div class="panel${i===0?' active':''}" id="panel-${i}">
+       <div class="info-bar">${infos[i]}</div>
+       <div id="panel-body-${i}"></div>
+     </div>`
+  ).join('');
+}
+
+function activateStage(i){
+  currentStage = i;
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  document.querySelectorAll('.stage-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  // render body
+  MODALITIES[currentModality].render[i]();
+}
+
+/* ══════════════════════════════════════════════
+   TEXT MODALITY RENDERERS
+══════════════════════════════════════════════ */
+function renderTextEncode(){
+  const el = document.getElementById('panel-body-0');
+  const text = 'Analyse the quarterly revenue trend';
+  const tokens = text.replace(/[.,!?]/g,'').split(/\s+/);
+  const colors = [C.blue,C.teal,C.amber,C.purple,C.coral,C.green,C.pink];
+  let html = `<div class="sec">Tokenisation</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">`;
+  tokens.forEach((t,i)=>{
+    const col = colors[i%colors.length];
+    const id = simHash(t)%50000+500;
+    html += `<div style="background:${col}18;border:1px solid ${col}40;border-radius:3px;
+      padding:5px 10px;font-size:11px;cursor:default;transition:all .2s"
+      onmouseover="this.style.background='${col}30'"
+      onmouseout="this.style.background='${col}18'">
+      <div style="color:${col};font-weight:700">${t}</div>
+      <div style="font-size:9px;color:${C.text3};margin-top:2px">id:${id}</div>
+    </div>`;
+  });
+  html += `</div><div class="sec">Embedding matrix (8 dims shown)</div>`;
+  html += `<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:10px;width:max-content">`;
+  html += `<tr><th style="padding:4px 8px;color:${C.text2};border-bottom:1px solid ${C.border}">Token</th>`;
+  for(let d=0;d<8;d++) html += `<th style="padding:4px 8px;color:${C.text3};border-bottom:1px solid ${C.border}">d${d+1}</th>`;
+  html += '</tr>';
+  tokens.slice(0,6).forEach((t,i)=>{
+    const col = colors[i%colors.length];
+    const vec = randVec(simHash(t));
+    html += `<tr>
+      <td style="padding:4px 8px;color:${col};font-weight:600;border-bottom:1px solid ${C.border}">"${t}"</td>`;
+    vec.slice(0,8).forEach(v=>{
+      const pct = ((v+1)/2*100).toFixed(0);
+      const barCol = v>0?C.blue:C.coral;
+      html += `<td style="padding:4px 8px;border-bottom:1px solid ${C.border}">
+        <div style="background:${C.bg4};border-radius:2px;height:5px;width:60px">
+          <div style="width:${pct}%;height:5px;background:${barCol};border-radius:2px"></div>
+        </div>
+        <div style="font-size:9px;color:${C.text3};margin-top:1px">${v.toFixed(2)}</div>
+      </td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  el.innerHTML = html;
+}
+
+function renderCrossAttn(){
+  const el = document.getElementById('panel-body-1');
+  const textToks = ['revenue','trend','quarterly'];
+  const imgToks  = ['chart','bars','axis','title'];
+  const tableToks= ['Q1','Q2','Q3','values'];
+  let html = `<div class="sec">Cross-modal attention heads</div>
+  <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:14px;align-items:start">
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Text queries</div>`;
+  textToks.forEach((t,i)=>{
+    html += `<div style="background:${C.blueDim};border:1px solid ${C.blue}40;border-radius:2px;
+      padding:5px 10px;margin-bottom:3px;font-size:11px;color:${C.blue}">${t}</div>`;
+  });
+  html += `</div><div>`;
+  html += `<svg viewBox="0 0 320 120" width="100%" style="background:${C.bg2};border-radius:3px">`;
+  // arrows from text to image & table
+  const textY = [18,42,66];
+  const imgX  = 220;
+  const targets = [{x:imgX,y:15,col:C.teal,l:'[img] chart'},{x:imgX,y:40,col:C.teal,l:'[img] bars'},
+                   {x:imgX,y:65,col:C.amber,l:'[tbl] Q1'},{x:imgX,y:90,col:C.amber,l:'[tbl] Q2'}];
+  const weights = [[.7,.2,.05,.05],[.1,.3,.4,.2],[.15,.15,.35,.35]];
+  textY.forEach((y,qi)=>{
+    targets.forEach((tgt,ki)=>{
+      const w = weights[qi][ki];
+      if(w < .05) return;
+      const opacity = 0.2 + w*0.8;
+      const sw = 0.5 + w*2;
+      html += `<line x1="80" y1="${y}" x2="${tgt.x-2}" y2="${tgt.y}" stroke="${C.blue}" stroke-width="${sw}" opacity="${opacity}" stroke-dasharray="4 3">
+        <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/>
+      </line>`;
+    });
+  });
+  targets.forEach(t=>{
+    html += `<rect x="${t.x}" y="${t.y-10}" width="90" height="20" rx="2" fill="${t.col}18" stroke="${t.col}50"/>`;
+    html += `<text x="${t.x+45}" y="${t.y+4}" text-anchor="middle" font-size="10" fill="${t.col}">${t.l}</text>`;
+  });
+  html += `<text x="5" y="100" font-size="9" fill="${C.text3}">Line thickness = attention weight</text>`;
+  html += '</svg></div></div>';
+  html += `<div class="info-bar" style="margin-top:8px">The text token <code>"revenue"</code> attends strongly to the chart image region (weight 0.70) and Q1/Q2 table cells. This is how the model grounds language understanding in visual and structured evidence.</div>`;
+  el.innerHTML = html;
+}
+
+function renderCoT(){
+  const el = document.getElementById('panel-body-2');
+  const steps = [
+    {thought:'Identify time series data from table columns Q1–Q4',icon:'📊',col:C.blue},
+    {thought:'Revenue: Q1=$2.1M, Q2=$2.4M, Q3=$2.8M, Q4=$3.2M — ascending',icon:'🔢',col:C.teal},
+    {thought:'Calculate QoQ growth: 14.3% → 16.7% → 14.3% — consistent ~15% CAGR',icon:'📈',col:C.amber},
+    {thought:'Check image: bar chart confirms upward slope, no outlier bars',icon:'🖼️',col:C.purple},
+    {thought:'Cross-validate: document mentions "strong H2 performance" — consistent',icon:'📄',col:C.coral},
+    {thought:'Conclusion: Healthy, accelerating revenue growth. Q4 is highest quarter.',icon:'✅',col:C.green},
+  ];
+  let html = `<div class="sec">Chain-of-thought scratchpad</div>`;
+  steps.forEach((s,i)=>{
+    html += `<div style="display:flex;gap:10px;margin-bottom:6px;animation:fadeIn .3s ease ${i*0.08}s both">
+      <div style="flex-shrink:0;width:28px;height:28px;border-radius:2px;
+        background:${s.col}20;border:1px solid ${s.col}40;
+        display:flex;align-items:center;justify-content:center;font-size:14px">${s.icon}</div>
+      <div style="flex:1;background:${C.bg3};border:1px solid ${C.border};border-left:2px solid ${s.col};
+        border-radius:0 3px 3px 0;padding:6px 10px;font-size:11px;line-height:1.6;color:${C.text}">
+        <span style="font-size:9px;color:${s.col};font-weight:700;text-transform:uppercase;letter-spacing:.8px">Step ${i+1}</span><br>
+        ${s.thought}
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderGenerate(){
+  const el = document.getElementById('panel-body-3');
+  el.innerHTML = `<div class="sec">Multimodal generation</div>
+  <div class="qa-row">
+    <div class="qa-label">Query</div>
+    <input class="qa-inp" id="gen-q" value="Summarise the revenue trend across all quarters"/>
+    <button class="run-btn" onclick="runTextGen()">Generate ↗</button>
+  </div>
+  <div class="output-box" id="gen-out" style="min-height:80px">
+    <span style="color:${C.text3}">Press Generate to run multimodal inference…</span>
+  </div>
+  <div id="gen-prob" style="margin-top:10px"></div>`;
+}
+
+function runTextGen(){
+  const q = document.getElementById('gen-q').value.toLowerCase();
+  let resp = 'Revenue grew consistently across all four quarters: Q1 $2.1M → Q2 $2.4M → Q3 $2.8M → Q4 $3.2M — representing a compound quarterly growth rate of approximately 15%. The bar chart confirms an unbroken upward trend with no anomalies. H2 performance was particularly strong, accounting for 58% of full-year revenue.';
+  if(q.includes('tax')||q.includes('vat')) resp = 'Total tax liability across all invoices is $4,820 at an effective blended rate of 8.3%. No anomalous tax rates detected. Two invoices carry a 0% rate (export exemptions).';
+  if(q.includes('vendor')) resp = 'Top vendors by spend: Acme Corp $24,500 (31%), TechSupplies Ltd $18,200 (23%), GlobalParts $14,100 (18%). Remaining 28% is spread across 9 vendors.';
+  const out = document.getElementById('gen-out');
+  out.innerHTML = '';
+  if(genTimer) clearInterval(genTimer);
+  let i=0;
+  genTimer = setInterval(()=>{
+    if(i>=resp.length){clearInterval(genTimer);showTokenProbs();return;}
+    out.innerHTML = resp.slice(0,++i) + '<span class="cursor"></span>';
+  },18);
+}
+
+function showTokenProbs(){
+  const cands = ['growth','increase','rise','surge','trend','trajectory'];
+  const probs = cands.map(w=>({w,p:Math.random()}));
+  const sum = probs.reduce((a,b)=>a+b.p,0);
+  probs.forEach(p=>p.p/=sum); probs.sort((a,b)=>b.p-a.p);
+  let html = `<div style="font-size:10px;color:${C.text2};margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">Next-token distribution</div>`;
+  probs.slice(0,5).forEach((p,i)=>{
+    const pct = Math.round(p.p*100);
+    html += `<div style="display:flex;align-items:center;gap:8px;margin:3px 0">
+      <span style="font-family:var(--font-mono);min-width:90px;font-size:11px;color:${i===0?C.blue:C.text2}">${p.w}</span>
+      <div style="flex:1;background:${C.bg4};border-radius:2px;height:6px">
+        <div style="width:${pct*2.5}px;max-width:100%;height:6px;border-radius:2px;background:${i===0?C.blue:C.text3}"></div>
+      </div>
+      <span style="font-size:10px;color:${C.text2};min-width:28px">${pct}%</span>
+    </div>`;
+  });
+  document.getElementById('gen-prob').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   IMAGE MODALITY RENDERERS
+══════════════════════════════════════════════ */
+const IMG_PATCH_COLORS = [
+  '#dbeafe','#dbeafe','#ccfbf1','#ccfbf1','#fef3c7','#fef3c7','#ede9fe','#ede9fe',
+  '#fee2e2','#dcfce7','#dbeafe','#ccfbf1','#fef3c7','#ede9fe','#fee2e2','#dcfce7',
+  '#dbeafe','#ccfbf1','#fef3c7','#ede9fe','#fee2e2','#dcfce7','#dbeafe','#ccfbf1',
+  '#fef3c7','#ede9fe','#fee2e2','#dcfce7','#dbeafe','#ccfbf1','#fef3c7','#ede9fe',
+  '#fee2e2','#dcfce7','#dbeafe','#ccfbf1',
+];
+
+let activePatch = 5;
+function renderPatchEmbed(){
+  const el = document.getElementById('panel-body-0');
+  const patchCols = [
+    C.blue,C.blue,C.teal,C.teal,C.amber,C.amber,C.purple,C.purple,
+    C.coral,C.green,C.blue,C.teal,C.amber,C.purple,C.coral,C.green,
+    C.blue,C.teal,C.amber,C.purple,C.coral,C.green,C.blue,C.teal,
+    C.amber,C.purple,C.coral,C.green,C.blue,C.teal,C.amber,C.purple,
+    C.coral,C.green,C.blue,C.teal,
+  ];
+  let html = `<div class="two-col" style="gap:12px">
+    <div>
+      <div class="sec">Image → 6×6 Patch Grid</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:8px">`;
+  for(let i=0;i<36;i++){
+    const col = patchCols[i];
+    const isActive = i===activePatch;
+    html += `<div onclick="selectPatch(${i})" style="
+      aspect-ratio:1;border-radius:2px;
+      background:${col}${isActive?'60':'20'};
+      border:${isActive?'2':'1'}px solid ${col}${isActive?'':'40'};
+      display:flex;align-items:center;justify-content:center;
+      font-size:8px;color:${col};cursor:pointer;
+      transition:all .15s;font-weight:700
+    ">${i+1}</div>`;
+  }
+  html += `</div>
+      <div style="font-size:10px;color:${C.text2}">Click any patch to inspect its embedding</div>
+    </div>
+    <div id="patch-embed-right">`;
+  html += patchEmbedRight(activePatch, patchCols);
+  html += `</div></div>`;
+  el.innerHTML = html;
+}
+
+function patchEmbedRight(i, patchCols){
+  const col = patchCols ? patchCols[i] : C.blue;
+  const vec = randVec(i*37+5);
+  return `<div class="sec">Patch ${i+1} Embedding</div>
+    <div style="font-size:10px;color:${C.text2};margin-bottom:8px">
+      Projected to <span style="color:${col}">768-dim</span> vector (12 dims shown)</div>` +
+    vec.slice(0,12).map((v,d)=>{
+      const pct = ((v+1)/2*100).toFixed(0);
+      return `<div style="display:flex;align-items:center;gap:6px;margin:3px 0">
+        <span style="font-size:9px;color:${C.text3};width:20px">d${d+1}</span>
+        <div style="flex:1;background:#e8eaf4;border-radius:2px;height:5px;overflow:hidden">
+          <div style="width:${pct}%;height:5px;background:${v>0?col:C.coral};border-radius:2px"></div>
+        </div>
+        <span style="font-size:9px;color:${C.text3};min-width:36px;text-align:right">${v.toFixed(3)}</span>
+      </div>`;
+    }).join('');
+}
+
+function selectPatch(i){
+  activePatch = i;
+  renderPatchEmbed();
+}
+
+function renderViT(){
+  const el = document.getElementById('panel-body-1');
+  const layers = ['L1: Edge Detection','L2: Texture/Shape','L3: Object Parts','L4: Semantics','L5: Context','L6: High-level'];
+  const layerCols = [C.blue,C.teal,C.amber,C.purple,C.coral,C.green];
+  let html = `<div class="sec">Vision Transformer Encoder — 6 layers</div>
+  <svg viewBox="0 0 640 200" width="100%" style="background:${C.bg2};border-radius:3px;margin-bottom:10px">`;
+  layers.forEach((l,i)=>{
+    const x = 10 + i*103, col = layerCols[i];
+    // layer box
+    html += `<rect x="${x}" y="20" width="92" height="130" rx="4" fill="${col}10" stroke="${col}30"/>`;
+    // heads
+    for(let h=0;h<4;h++){
+      const hx = x+8+h*20, hy=35;
+      html += `<rect x="${hx}" y="${hy}" width="16" height="16" rx="2" fill="${col}30" stroke="${col}50"/>`;
+      html += `<text x="${hx+8}" y="${hy+10}" text-anchor="middle" font-size="7" fill="${col}">H${h+1}</text>`;
+    }
+    // ff layers
+    html += `<rect x="${x+6}" y="62" width="80" height="12" rx="2" fill="${col}20"/>`;
+    html += `<text x="${x+46}" y="${62+9}" text-anchor="middle" font-size="8" fill="${col}">FFN</text>`;
+    html += `<rect x="${x+6}" y="78" width="80" height="12" rx="2" fill="${col}20"/>`;
+    html += `<text x="${x+46}" y="${78+9}" text-anchor="middle" font-size="8" fill="${col}">LayerNorm</text>`;
+    // label
+    html += `<text x="${x+46}" y="168" text-anchor="middle" font-size="8" fill="${col}">${l.split(':')[0]}</text>`;
+    html += `<text x="${x+46}" y="178" text-anchor="middle" font-size="8" fill="${C.text3}">${l.split(':')[1]||''}</text>`;
+    // arrow
+    if(i<5){
+      html += `<line x1="${x+92}" y1="85" x2="${x+103}" y2="85" stroke="${C.text3}" stroke-width="1" marker-end="url(#arr)"/>`;
+    }
+  });
+  html += `<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="${C.text3}" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
+  html += `<text x="320" y="195" text-anchor="middle" font-size="9" fill="${C.text3}">Each layer attends over all 36 patch tokens — building richer representations</text>`;
+  html += '</svg>';
+  html += `<div class="info-bar">Early layers detect low-level features (edges, textures). Deeper layers compose these into object parts, semantic regions, and contextual relationships. The <code>[CLS]</code> token aggregates global image understanding.</div>`;
+  el.innerHTML = html;
+}
+
+function renderImgCrossAttn(){
+  const el = document.getElementById('panel-body-2');
+  const questions = [
+    {q:'What is the revenue in Q3?',region:'Chart bar at Q3',patch:'Patch 15–18',conf:.92,col:C.blue},
+    {q:'Is there a upward trend?',region:'All bar tops',patch:'Patches 3,9,15,21',conf:.88,col:C.teal},
+    {q:'What is the Y-axis label?',region:'Left axis text',patch:'Patches 1–6',conf:.96,col:C.amber},
+  ];
+  let html = `<div class="sec">Visual Question → Patch Attention</div>`;
+  questions.forEach(q=>{
+    html += `<div style="background:${C.bg3};border:1px solid ${C.border};border-radius:3px;
+      padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div>
+          <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Question</div>
+          <div style="font-size:12px;color:${C.text};margin-bottom:6px">"${q.q}"</div>
+          <div style="font-size:10px;color:${C.text3}">Attends to: <span style="color:${q.col}">${q.region}</span> · <span style="color:${C.text2}">${q.patch}</span></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:9px;color:${C.text3};margin-bottom:3px">Confidence</div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:${q.col}">${Math.round(q.conf*100)}%</div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="prog-bar"><div class="prog-fill" style="width:${q.conf*100}%;background:${q.col}"></div></div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderCaption(){
+  const el = document.getElementById('panel-body-3');
+  el.innerHTML = `<div class="sec">Image → Caption generation</div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:14px;margin-bottom:14px;align-items:start">
+    <div>
+      <svg viewBox="0 0 160 140" width="100%" style="background:${C.bg2};border-radius:3px;border:1px solid ${C.border}">
+        <rect x="15" y="10" width="20" height="60" rx="2" fill="${C.blue}60"/>
+        <rect x="45" y="30" width="20" height="40" rx="2" fill="${C.teal}60"/>
+        <rect x="75" y="15" width="20" height="55" rx="2" fill="${C.amber}60"/>
+        <rect x="105" y="5" width="20" height="65" rx="2" fill="${C.purple}60"/>
+        <line x1="10" y1="75" x2="150" y2="75" stroke="${C.text3}" stroke-width="0.5"/>
+        <text x="25" y="90" text-anchor="middle" font-size="8" fill="${C.text3}">Q1</text>
+        <text x="55" y="90" text-anchor="middle" font-size="8" fill="${C.text3}">Q2</text>
+        <text x="85" y="90" text-anchor="middle" font-size="8" fill="${C.text3}">Q3</text>
+        <text x="115" y="90" text-anchor="middle" font-size="8" fill="${C.text3}">Q4</text>
+        <text x="80" y="108" text-anchor="middle" font-size="9" fill="${C.text2}">Quarterly Revenue</text>
+        <text x="80" y="120" text-anchor="middle" font-size="8" fill="${C.text3}">Simulated chart image</text>
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Generated Caption</div>
+      <div class="output-box" style="min-height:80px">A bar chart showing quarterly revenue for four consecutive quarters. Revenue increases monotonically from Q1 through Q4, with Q4 showing the highest value. The chart suggests a consistent upward growth trend of approximately 15% quarter-over-quarter. No seasonality or anomalies are visible.</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="chip chip-blue">Objects: bar_chart, axis, labels</span>
+        <span class="chip chip-teal">Trend: monotonic_increase</span>
+        <span class="chip chip-amber">Domain: financial</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   TABLE MODALITY RENDERERS
+══════════════════════════════════════════════ */
+const TABLE_DATA = {
+  headers:['Quarter','Revenue ($M)','Expenses ($M)','Net Profit ($M)','Growth %'],
+  rows:[
+    ['Q1 2024','2.10','1.45','0.65','—'],
+    ['Q2 2024','2.40','1.60','0.80','14.3%'],
+    ['Q3 2024','2.80','1.75','1.05','16.7%'],
+    ['Q4 2024','3.20','1.90','1.30','14.3%'],
+  ],
+  types:['categorical','numeric','numeric','numeric','percent'],
+};
+
+function renderTableParse(){
+  const el = document.getElementById('panel-body-0');
+  const typeCols = {categorical:C.purple,numeric:C.blue,percent:C.teal,date:C.amber};
+  let html = `<div class="sec">Parsed Table Structure</div>
+  <div style="overflow-x:auto;margin-bottom:12px">
+  <table class="data-table">
+    <thead><tr>`;
+  TABLE_DATA.headers.forEach((h,i)=>{
+    const col = typeCols[TABLE_DATA.types[i]]||C.text2;
+    html += `<th><div style="color:${col}">${h}</div>
+      <div style="font-size:9px;color:${C.text3};font-weight:400;margin-top:2px">[${TABLE_DATA.types[i]}]</div></th>`;
+  });
+  html += '</tr></thead><tbody>';
+  TABLE_DATA.rows.forEach(row=>{
+    html += '<tr>';
+    row.forEach((c,i)=>{
+      const col = typeCols[TABLE_DATA.types[i]]||C.text;
+      const isNum = TABLE_DATA.types[i]==='numeric'||TABLE_DATA.types[i]==='percent';
+      html += `<td style="color:${isNum?C.text:C.text2};text-align:${isNum?'right':'left'};font-family:${isNum?'var(--font-mono)':'inherit'}">${c}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += `</tbody></table></div>
+  <div class="legend">
+    <span><span class="leg-dot" style="background:${C.purple}"></span>Categorical</span>
+    <span><span class="leg-dot" style="background:${C.blue}"></span>Numeric</span>
+    <span><span class="leg-dot" style="background:${C.teal}"></span>Percent</span>
+    <span><span class="leg-dot" style="background:${C.amber}"></span>Date</span>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function renderCellEncode(){
+  const el = document.getElementById('panel-body-1');
+  let html = `<div class="sec">Cell Token Encoding</div>
+  <div style="font-size:11px;color:${C.text2};margin-bottom:10px;line-height:1.7">Each cell becomes a structured token. The embedding fuses: <span style="color:${C.blue}">cell value</span> + <span style="color:${C.teal}">column header</span> + <span style="color:${C.amber}">row index</span> + <span style="color:${C.purple}">data type</span>.</div>`;
+  // show 3 example cells
+  const examples = [
+    {val:'2.40',col:'Revenue ($M)',row:'Q2 2024',type:'numeric',token_id:14802},
+    {val:'16.7%',col:'Growth %',row:'Q3 2024',type:'percent',token_id:9341},
+    {val:'Q4 2024',col:'Quarter',row:'Q4 2024',type:'categorical',token_id:7120},
+  ];
+  examples.forEach(ex=>{
+    html += `<div style="background:${C.bg3};border:1px solid ${C.border};border-radius:3px;
+      padding:10px 12px;margin-bottom:8px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:${C.text}">${ex.val}</div>
+      <div style="flex:1;min-width:150px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+          <span class="chip chip-blue">col: ${ex.col}</span>
+          <span class="chip chip-amber">row: ${ex.row}</span>
+          <span class="chip chip-purple">type: ${ex.type}</span>
+        </div>
+        <div style="font-size:10px;color:${C.text3}">→ Token ID <span style="color:${C.teal}">${ex.token_id}</span> | embed dim 768</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderRowReason(){
+  const el = document.getElementById('panel-body-2');
+  const findings = [
+    {label:'YoY Revenue Growth',val:'+52.4%',icon:'📈',col:C.green,detail:'Q1 $2.1M → Q4 $3.2M'},
+    {label:'Avg Quarterly Growth',val:'15.1%',icon:'📊',col:C.blue,detail:'Consistent compounding'},
+    {label:'Best Quarter',val:'Q4 2024',icon:'🏆',col:C.amber,detail:'$3.2M revenue, $1.3M profit'},
+    {label:'Profit Margin (Q4)',val:'40.6%',icon:'💰',col:C.teal,detail:'$1.30M / $3.20M'},
+    {label:'Anomaly Detected',val:'None',icon:'✅',col:C.green,detail:'All values within 2σ'},
+  ];
+  let html = `<div class="sec">Neural aggregation results</div>`;
+  findings.forEach(f=>{
+    html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+      background:${C.bg3};border:1px solid ${C.border};border-radius:3px;margin-bottom:5px">
+      <div style="font-size:20px">${f.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px">${f.label}</div>
+        <div style="font-size:10px;color:${C.text3};margin-top:1px">${f.detail}</div>
+      </div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:800;color:${f.col}">${f.val}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderInsight(){
+  const el = document.getElementById('panel-body-3');
+  const insight = `Revenue performance for FY2024 was strong, with total annual revenue of $10.50M driven by consistent quarterly growth averaging 15.1% QoQ. Q4 was the standout quarter — $3.20M revenue with a 40.6% net margin — suggesting strong operational leverage. Expenses grew at a slower rate (9.1% per quarter) than revenue (15.1%), expanding margins throughout the year. No anomalies or data inconsistencies were detected across the four quarters.`;
+  el.innerHTML = `<div class="sec">Generated Financial Narrative</div>
+  <div class="qa-row">
+    <div class="qa-label">Prompt</div>
+    <input class="qa-inp" id="table-q" value="Summarise revenue performance"/>
+    <button class="run-btn" onclick="runTableInsight()">Analyse ↗</button>
+  </div>
+  <div class="output-box" id="table-out">${insight}</div>
+  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+    <span class="chip chip-green">Grounded in table data</span>
+    <span class="chip chip-blue">No hallucination risk</span>
+    <span class="chip chip-teal">Citable figures</span>
+  </div>`;
+}
+
+function runTableInsight(){
+  const q = document.getElementById('table-q').value.toLowerCase();
+  let resp = 'Revenue performance for FY2024 was strong, with total annual revenue of $10.50M driven by consistent quarterly growth averaging 15.1% QoQ.';
+  if(q.includes('expense')||q.includes('cost')) resp = 'Total expenses for FY2024 were $6.70M. Quarterly expense growth averaged 9.1% — slower than revenue growth of 15.1%, resulting in expanding profit margins across all quarters.';
+  if(q.includes('profit')) resp = 'Net profit grew from $0.65M (Q1) to $1.30M (Q4), doubling over the year. Full-year net profit was $3.80M, implying a blended net margin of 36.2%.';
+  const out = document.getElementById('table-out');
+  out.innerHTML = '';
+  let i=0;
+  if(genTimer) clearInterval(genTimer);
+  genTimer = setInterval(()=>{
+    if(i>=resp.length){clearInterval(genTimer);out.innerHTML+=`<span class="cursor"></span>`;return;}
+    out.innerHTML = resp.slice(0,++i);
+  },20);
+}
+
+/* ══════════════════════════════════════════════
+   DOCUMENT MODALITY RENDERERS
+══════════════════════════════════════════════ */
+function renderOCR(){
+  const el = document.getElementById('panel-body-0');
+  const zones = [
+    {label:'Title',text:'Annual Financial Report — FY2024',col:C.blue,conf:.99,y:8,h:18},
+    {label:'Section Heading',text:'Executive Summary',col:C.teal,conf:.98,y:34,h:14},
+    {label:'Body Text',text:'Total revenue reached $10.50M representing a 52% increase...',col:C.text2,conf:.97,y:56,h:28},
+    {label:'Table',text:'[Structured: 4 rows × 5 cols detected]',col:C.amber,conf:.94,y:92,h:34},
+    {label:'Figure Caption',text:'Figure 1: Quarterly Revenue Breakdown',col:C.purple,conf:.96,y:134,h:14},
+    {label:'Footer',text:'Confidential — Page 1 of 12',col:C.text3,conf:.91,y:155,h:12},
+  ];
+  let html = `<div class="two-col">
+  <div>
+    <div class="sec">OCR Region Detection</div>
+    <div style="position:relative;background:${C.bg2};border:1px solid ${C.border2};border-radius:3px;height:180px;overflow:hidden">
+      <div class="scan-line" style="--scan-h:180px"></div>`;
+  zones.forEach(z=>{
+    html += `<div style="position:absolute;left:8px;right:8px;top:${z.y}px;height:${z.h}px;
+      background:${z.col}18;border:1px solid ${z.col}40;border-radius:2px;
+      display:flex;align-items:center;padding:0 6px;overflow:hidden">
+      <span style="font-size:8px;color:${z.col};white-space:nowrap;text-overflow:ellipsis;overflow:hidden">${z.text}</span>
+    </div>`;
+  });
+  html += `</div></div>
+  <div>
+    <div class="sec">Detected Regions</div>`;
+  zones.forEach(z=>{
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;
+      padding:5px 8px;margin-bottom:3px;background:${C.bg3};border-radius:2px;
+      border-left:2px solid ${z.col}">
+      <div>
+        <div style="font-size:10px;font-weight:600;color:${z.col}">${z.label}</div>
+        <div style="font-size:9px;color:${C.text3};margin-top:1px">${z.text.slice(0,30)}…</div>
+      </div>
+      <div style="font-size:10px;color:${z.col};font-weight:600;min-width:32px;text-align:right">${Math.round(z.conf*100)}%</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+  el.innerHTML = html;
+}
+
+function renderSegment(){
+  const el = document.getElementById('panel-body-1');
+  const blocks = [
+    {type:'TITLE',text:'Annual Financial Report — FY2024',col:C.blue,idx:0},
+    {type:'SECTION',text:'1. Executive Summary',col:C.teal,idx:1},
+    {type:'BODY',text:'Total revenue reached $10.50M, a 52.4% YoY increase driven by consistent quarterly growth…',col:C.text2,idx:2},
+    {type:'TABLE',text:'Quarterly Breakdown Table (4×5)',col:C.amber,idx:3},
+    {type:'FIGURE',text:'Figure 1: Quarterly Revenue Bar Chart',col:C.purple,idx:4},
+    {type:'SECTION',text:'2. Operating Expenses',col:C.teal,idx:5},
+    {type:'BODY',text:'Total operating expenses were $6.70M with consistent 9.1% quarterly growth…',col:C.text2,idx:6},
+    {type:'FOOTER',text:'Page 1 of 12 · Confidential',col:C.text3,idx:7},
+  ];
+  let html = `<div class="sec">Document Block Segmentation</div>
+  <div style="border:1px solid ${C.border};border-radius:3px;overflow:hidden">`;
+  blocks.forEach(b=>{
+    html += `<div style="display:flex;align-items:flex-start;gap:0;border-bottom:1px solid ${C.border}">
+      <div style="background:${b.col}20;border-right:1px solid ${b.col}40;
+        padding:6px 8px;min-width:80px;font-size:9px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.8px;color:${b.col};flex-shrink:0">${b.type}</div>
+      <div style="padding:6px 10px;font-size:11px;color:${b.col==='#5a5f7a'?C.text2:C.text};flex:1">${b.text}</div>
+      <div style="padding:6px 8px;font-size:9px;color:${C.text3};flex-shrink:0">blk_${b.idx.toString().padStart(3,'0')}</div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderSemantic(){
+  const el = document.getElementById('panel-body-2');
+  el.innerHTML = `<div class="sec">Vector Similarity Search</div>
+  <div class="info-bar" style="margin-bottom:12px">Each document block is embedded and stored in a vector DB. At query time, the query embedding retrieves the <code>top-K</code> most semantically relevant blocks — even across long documents.</div>
+  <svg viewBox="0 0 600 220" width="100%" style="background:${C.bg2};border-radius:3px">
+    ${renderSemanticSVG()}
+  </svg>
+  <div class="legend" style="margin-top:8px">
+    <span><span class="leg-dot" style="background:${C.coral}"></span>Query vector</span>
+    <span><span class="leg-dot" style="background:${C.blue}"></span>Document blocks</span>
+    <span><span class="leg-dot" style="background:${C.teal}"></span>Top-3 retrieved</span>
+  </div>`;
+}
+
+function renderSemanticSVG(){
+  const query = {x:80,y:110};
+  const blocks = [
+    {label:'Exec Summary',x:180,y:70,col:C.teal,top:true},
+    {label:'Qtrly Table',x:250,y:100,col:C.teal,top:true},
+    {label:'Revenue Chart',x:220,y:150,col:C.teal,top:true},
+    {label:'Expenses',x:360,y:80,col:C.blue,top:false},
+    {label:'Headcount',x:420,y:130,col:C.blue,top:false},
+    {label:'Appendix',x:480,y:70,col:C.blue,top:false},
+    {label:'Legal',x:500,y:160,col:C.blue,top:false},
+    {label:'Glossary',x:440,y:190,col:C.blue,top:false},
+  ];
+  let s = `<defs><marker id="sm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="${C.teal}" stroke-width="2" stroke-linecap="round"/></marker></defs>`;
+  // lines to top blocks
+  blocks.filter(b=>b.top).forEach(b=>{
+    s += `<line x1="${query.x}" y1="${query.y}" x2="${b.x-25}" y2="${b.y}" stroke="${C.teal}" stroke-width="1.5" stroke-dasharray="4 3" opacity=".7"/>`;
+  });
+  // all dots
+  blocks.forEach(b=>{
+    const r = b.top?8:5;
+    s += `<circle cx="${b.x}" cy="${b.y}" r="${r}" fill="${b.col}" opacity="${b.top?1:.5}"/>`;
+    s += `<text x="${b.x}" y="${b.y-11}" text-anchor="middle" font-size="9" fill="${b.col}">${b.label}</text>`;
+  });
+  // query dot
+  s += `<circle cx="${query.x}" cy="${query.y}" r="9" fill="${C.coral}"/>`;
+  s += `<text x="${query.x}" y="${query.y-13}" text-anchor="middle" font-size="9" fill="${C.coral}" font-weight="700">Query</text>`;
+  s += `<text x="300" y="210" text-anchor="middle" font-size="9" fill="${C.text3}">2D projection — real space is 768-dimensional</text>`;
+  return s;
+}
+
+function renderDocQA(){
+  const el = document.getElementById('panel-body-3');
+  el.innerHTML = `<div class="sec">Document Q&A</div>
+  <div class="qa-row">
+    <div class="qa-label">Question</div>
+    <input class="qa-inp" id="doc-q" value="What was the total revenue for FY2024?"/>
+    <button class="run-btn" onclick="runDocQA()">Ask ↗</button>
+  </div>
+  <div id="doc-chunks" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"></div>
+  <div class="output-box" id="doc-out" style="min-height:70px">
+    <span style="color:${C.text3}">Retrieved chunks will appear here…</span>
+  </div>`;
+}
+
+function runDocQA(){
+  const q = document.getElementById('doc-q').value.toLowerCase();
+  const chunks = ['Executive Summary · blk_001','Quarterly Table · blk_003','Revenue Chart · blk_004'];
+  const chunksDiv = document.getElementById('doc-chunks');
+  chunksDiv.innerHTML = chunks.map(c=>`<span class="chip chip-teal">📎 ${c}</span>`).join('');
+  let resp = 'According to the Quarterly Table (blk_003) and Executive Summary (blk_001): Total FY2024 revenue was $10.50M — Q1 $2.10M + Q2 $2.40M + Q3 $2.80M + Q4 $3.20M. This represents a 52.4% increase year-over-year. (Source: Annual Financial Report, p.1)';
+  if(q.includes('expense')) resp = 'From the Operating Expenses section (blk_006): Total FY2024 expenses were $6.70M, growing at a slower 9.1% quarterly rate vs 15.1% for revenue — indicating improving operational leverage.';
+  if(q.includes('profit')) resp = 'Net profit data from the Quarterly Table (blk_003): Full-year net profit was $3.80M on $10.50M revenue — a blended net margin of 36.2%. Best quarter: Q4 with a 40.6% margin.';
+  const out = document.getElementById('doc-out');
+  out.innerHTML = '';
+  let i=0;
+  if(genTimer) clearInterval(genTimer);
+  genTimer = setInterval(()=>{
+    if(i>=resp.length){clearInterval(genTimer);return;}
+    out.innerHTML = resp.slice(0,++i);
+  },18);
+}
+
+/* ══════════════════════════════════════════════
+   INVOICE MODALITY RENDERERS (Case Study)
+══════════════════════════════════════════════ */
+function renderInvoiceScan(){
+  const el = document.getElementById('panel-body-0');
+  el.innerHTML = `<div class="sec">Case Study: Invoice Understanding</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Simulated Invoice Document</div>
+      <div class="inv-doc" style="position:relative">
+        <div class="scan-line" id="inv-scan"></div>
+        <div class="inv-header">
+          <div>
+            <div class="inv-logo">ACME CORP</div>
+            <div style="font-size:9px;color:${C.text3};margin-top:2px">123 Business Ave, Chennai, TN</div>
+          </div>
+          <div class="inv-badge">
+            <strong>INVOICE</strong>
+            #INV-2024-0842<br>
+            Date: 15 Nov 2024<br>
+            Due: 15 Dec 2024
+          </div>
+        </div>
+        <div style="font-size:10px;color:${C.text2};margin-bottom:6px">Bill To: TechStart Ltd · PO: PO-7721</div>
+        <table class="inv-table">
+          <thead><tr>
+            <th>Description</th><th>Qty</th><th>Unit</th><th>Total</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Cloud Storage Pro</td><td>12</td><td>$150</td><td>$1,800</td></tr>
+            <tr><td>API Access License</td><td>3</td><td>$400</td><td>$1,200</td></tr>
+            <tr><td>Support Package</td><td>1</td><td>$500</td><td>$500</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px;font-size:10px;color:${C.text2};text-align:right;line-height:2">
+          Subtotal: $3,500 · Tax (8%): $280
+        </div>
+        <div class="inv-total">$3,780 <span>Total Due USD</span></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Detected Regions</div>`;
+  const regions = [
+    {label:'Vendor Info',conf:.98,col:C.blue},
+    {label:'Invoice Number',conf:.99,col:C.teal},
+    {label:'Issue / Due Dates',conf:.97,col:C.amber},
+    {label:'Line Items (3)',conf:.96,col:C.purple},
+    {label:'Subtotal',conf:.98,col:C.teal},
+    {label:'Tax Rate',conf:.95,col:C.amber},
+    {label:'Total Due',conf:.99,col:C.green},
+    {label:'PO Number',conf:.93,col:C.coral},
+  ];
+  regions.forEach(r=>{
+    el.querySelector('.two-col, div:last-child') ;
+    const frag = `<div style="display:flex;align-items:center;justify-content:space-between;
+      padding:5px 8px;margin-bottom:3px;background:${C.bg3};border-radius:2px;
+      border-left:2px solid ${r.col}">
+      <div style="font-size:10px;color:${r.col}">${r.label}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="background:${C.bg4};border-radius:2px;height:5px;width:50px">
+          <div style="width:${r.conf*100}%;height:5px;background:${r.col};border-radius:2px"></div>
+        </div>
+        <span style="font-size:9px;color:${r.col};min-width:28px">${Math.round(r.conf*100)}%</span>
+      </div>
+    </div>`;
+    el.innerHTML += frag; // append
+  });
+  // rebuild properly
+  let html2 = `<div class="sec">Case Study: Invoice Understanding</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Simulated Invoice Document</div>
+      <div class="inv-doc" style="position:relative;overflow:hidden">
+        <div class="scan-line" style="--scan-h:280px"></div>
+        <div class="inv-header">
+          <div><div class="inv-logo">ACME CORP</div><div style="font-size:9px;color:${C.text3};margin-top:2px">123 Business Ave, Chennai</div></div>
+          <div class="inv-badge"><strong>INVOICE</strong>#INV-2024-0842<br>Date: 15 Nov 2024<br>Due: 15 Dec 2024</div>
+        </div>
+        <div style="font-size:10px;color:${C.text2};margin-bottom:6px">Bill To: TechStart Ltd · PO: PO-7721</div>
+        <table class="inv-table"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>Cloud Storage Pro</td><td>12</td><td>$150</td><td>$1,800</td></tr>
+          <tr><td>API Access License</td><td>3</td><td>$400</td><td>$1,200</td></tr>
+          <tr><td>Support Package</td><td>1</td><td>$500</td><td>$500</td></tr>
+        </tbody></table>
+        <div style="margin-top:8px;font-size:10px;color:${C.text2};text-align:right;line-height:2">Subtotal: $3,500 · Tax (8%): $280</div>
+        <div class="inv-total">$3,780 <span>Total Due USD</span></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Detected Regions</div>`;
+  regions.forEach(r=>{
+    html2 += `<div style="display:flex;align-items:center;justify-content:space-between;
+      padding:5px 8px;margin-bottom:3px;background:${C.bg3};border-radius:2px;border-left:2px solid ${r.col}">
+      <div style="font-size:10px;color:${r.col}">${r.label}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="background:${C.bg4};border-radius:2px;height:5px;width:50px">
+          <div style="width:${r.conf*100}%;height:5px;background:${r.col};border-radius:2px"></div>
+        </div>
+        <span style="font-size:9px;color:${r.col};min-width:28px">${Math.round(r.conf*100)}%</span>
+      </div>
+    </div>`;
+  });
+  html2 += `</div></div>`;
+  el.innerHTML = html2;
+}
+
+function renderFieldExtract(){
+  const el = document.getElementById('panel-body-1');
+  const fields = [
+    {key:'vendor_name',val:'Acme Corp',type:'string',conf:.98,col:C.blue},
+    {key:'invoice_number',val:'INV-2024-0842',type:'string',conf:.99,col:C.teal},
+    {key:'invoice_date',val:'2024-11-15',type:'date',conf:.97,col:C.amber},
+    {key:'due_date',val:'2024-12-15',type:'date',conf:.97,col:C.amber},
+    {key:'po_number',val:'PO-7721',type:'string',conf:.93,col:C.purple},
+    {key:'subtotal_usd',val:'3500.00',type:'decimal',conf:.99,col:C.teal},
+    {key:'tax_rate',val:'0.08',type:'percent',conf:.95,col:C.amber},
+    {key:'tax_amount_usd',val:'280.00',type:'decimal',conf:.98,col:C.teal},
+    {key:'total_due_usd',val:'3780.00',type:'decimal',conf:.99,col:C.green},
+    {key:'currency',val:'USD',type:'enum',conf:.99,col:C.blue},
+    {key:'line_items',val:'[3 items parsed]',type:'array',conf:.96,col:C.purple},
+  ];
+  let html = `<div class="sec">Extracted Schema Fields</div>
+  <div style="overflow-x:auto"><table class="data-table">
+    <thead><tr>
+      <th>Field</th><th>Extracted Value</th><th>Type</th><th>Confidence</th>
+    </tr></thead>
+    <tbody>`;
+  fields.forEach(f=>{
+    html += `<tr>
+      <td style="font-family:var(--font-mono);color:${f.col};font-size:10px">${f.key}</td>
+      <td style="font-weight:600;color:${C.text}">${f.val}</td>
+      <td><span class="chip chip-purple" style="font-size:9px">${f.type}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="background:${C.bg4};border-radius:2px;height:5px;width:60px">
+            <div style="width:${f.conf*100}%;height:5px;background:${f.col};border-radius:2px"></div>
+          </div>
+          <span style="font-size:10px;color:${f.col}">${Math.round(f.conf*100)}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  el.innerHTML = html;
+}
+
+function renderValidate(){
+  const el = document.getElementById('panel-body-2');
+  const checks = [
+    {label:'Line items sum → subtotal',calc:'$1,800 + $1,200 + $500 = $3,500',expected:'$3,500',status:'ok'},
+    {label:'Tax amount = subtotal × rate',calc:'$3,500 × 8% = $280.00',expected:'$280',status:'ok'},
+    {label:'Total = subtotal + tax',calc:'$3,500 + $280 = $3,780',expected:'$3,780',status:'ok'},
+    {label:'Due date after issue date',calc:'Dec 15 > Nov 15 → 30-day terms',expected:'≥1 day',status:'ok'},
+    {label:'Tax rate plausibility',calc:'8% — within global [5%–25%] range',expected:'[0%–30%]',status:'ok'},
+    {label:'Duplicate invoice check',calc:'INV-2024-0842 → cosine sim 0.12 vs corpus',expected:'<0.85 threshold',status:'ok'},
+    {label:'PO number cross-reference',calc:'PO-7721 not found in PO registry',expected:'Match required',status:'warn'},
+  ];
+  let html = `<div class="sec">Validation Checks</div>`;
+  checks.forEach(c=>{
+    const isOk = c.status==='ok';
+    html += `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      padding:8px 10px;margin-bottom:5px;background:${C.bg3};border-radius:3px;
+      border-left:2px solid ${isOk?C.green:C.coral}">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:600;color:${C.text};margin-bottom:2px">${c.label}</div>
+        <div style="font-size:10px;color:${C.text2};line-height:1.5">${c.calc}</div>
+      </div>
+      <div style="flex-shrink:0;margin-top:2px">
+        ${isOk?`<span class="ok-badge">✓ PASS</span>`:`<span class="anomaly">⚠ FLAG</span>`}
+      </div>
+    </div>`;
+  });
+  html += `<div style="margin-top:10px;padding:10px 12px;background:${C.coralDim};border:1px solid #5a1e1e;border-radius:3px;font-size:11px;color:${C.coral}">
+    <strong>⚠ Action required:</strong> PO-7721 could not be matched in the approved PO registry. Invoice is flagged for manual review before payment approval.
+  </div>`;
+  el.innerHTML = html;
+}
+
+function renderFinancialReport(){
+  const el = document.getElementById('panel-body-3');
+  const vendors = [
+    {name:'Acme Corp',spend:24500,inv:8,col:C.blue},
+    {name:'TechSupplies Ltd',spend:18200,inv:6,col:C.teal},
+    {name:'GlobalParts',spend:14100,inv:5,col:C.amber},
+    {name:'CloudHost Inc',spend:9800,inv:4,col:C.purple},
+    {name:'Others (9)',spend:11600,inv:14,col:C.text3},
+  ];
+  const total = vendors.reduce((s,v)=>s+v.spend,0);
+  let html = `<div class="sec">Aggregated Financial Dashboard</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+    ${[
+      {label:'Total Invoices',val:'37',col:C.blue},
+      {label:'Total Spend',val:'$78,200',col:C.teal},
+      {label:'Flagged',val:'2',col:C.coral},
+    ].map(m=>`<div style="background:${C.bg3};border:1px solid ${C.border};border-radius:3px;
+      padding:10px 12px;text-align:center">
+      <div style="font-size:10px;color:${C.text2};text-transform:uppercase;letter-spacing:.8px">${m.label}</div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:${m.col};margin-top:4px">${m.val}</div>
+    </div>`).join('')}
+  </div>
+  <div class="sec">Vendor Spend Breakdown</div>`;
+  vendors.forEach(v=>{
+    const pct = (v.spend/total*100).toFixed(1);
+    html += `<div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+        <span style="color:${v.col}">${v.name}</span>
+        <span style="color:${C.text2}">$${v.spend.toLocaleString()} · ${pct}%</span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" style="width:${pct*2}%;max-width:100%;background:${v.col}"></div>
+      </div>
+    </div>`;
+  });
+  html += `<div style="margin-top:12px">
+    <div class="sec">AI-Generated Report</div>
+    <div class="qa-row">
+      <div class="qa-label">Ask</div>
+      <input class="qa-inp" id="fin-q" value="Which vendor is overdue?"/>
+      <button class="run-btn" onclick="runFinReport()">Generate ↗</button>
+    </div>
+    <div class="output-box" id="fin-out" style="min-height:60px">
+      <span style="color:${C.text3}">Ask a question about the aggregated invoice data…</span>
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function runFinReport(){
+  const q = document.getElementById('fin-q').value.toLowerCase();
+  let resp = 'No vendors are currently overdue based on the extracted due dates. The next due date is 15 Dec 2024 (INV-2024-0842 · Acme Corp · $3,780). One invoice (INV-2024-0781) is flagged for a missing PO reference and pending manual review.';
+  if(q.includes('tax')) resp = 'Total tax across all 37 invoices: $4,820 at a blended effective rate of 8.3%. Two invoices carry a 0% rate under export exemption rules. No anomalous tax rates detected.';
+  if(q.includes('top')||q.includes('largest')) resp = 'Top vendor by spend: Acme Corp at $24,500 (31.3% of total). Largest single invoice: INV-2024-0701 · GlobalParts · $5,200 for industrial components.';
+  if(q.includes('flag')) resp = '2 invoices are flagged: (1) INV-2024-0842 — PO number not in registry (requires approval). (2) INV-2024-0614 — duplicate detected (cosine similarity 0.96 vs INV-2024-0501). Both paused for review.';
+  const out = document.getElementById('fin-out');
+  out.innerHTML = '';
+  let i=0;
+  if(genTimer) clearInterval(genTimer);
+  genTimer = setInterval(()=>{
+    if(i>=resp.length){clearInterval(genTimer);return;}
+    out.innerHTML = resp.slice(0,++i);
+  },18);
+}
+
+/* ─────── utilities ─────── */
+function simHash(s){
+  let h=0;
+  for(let c of s) h=(h*31+c.charCodeAt(0))&0xffffffff;
+  return Math.abs(h);
+}
+
+function randVec(seed,n=12){
+  const v=[]; let s=seed;
+  for(let i=0;i<n;i++){
+    s=(s*1664525+1013904223)&0xffffffff;
+    v.push(((s>>>16)/65535)*2-1);
+  }
+  return v;
+}
+
+/* ─────── boot ─────── */
+setModality('text');
+</script>
+</body>
+</html>

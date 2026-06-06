@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LLM vs Multimodal Transformer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f6fa;
+  --surface:#ffffff;
+  --surface2:#f0f2f8;
+  --surface3:#e8ebf5;
+  --border:#dde2f0;
+  --border2:#c8d0e8;
+  --text:#1c1f2e;
+  --text2:#5c6080;
+  --text3:#9ba0bc;
+
+  /* LLM side — indigo/violet */
+  --llm:#4f46e5;
+  --llm-light:#eef2ff;
+  --llm-mid:#c7d2fe;
+  --llm-dark:#3730a3;
+  --llm-glow:rgba(79,70,229,0.12);
+
+  /* Multimodal side — emerald/teal */
+  --mm:#0d9488;
+  --mm-light:#f0fdfa;
+  --mm-mid:#99f6e4;
+  --mm-dark:#0f766e;
+  --mm-glow:rgba(13,148,136,0.12);
+
+  /* accents */
+  --amber:#d97706;--amber-bg:#fef3c7;
+  --coral:#dc2626;--coral-bg:#fee2e2;
+  --purple:#7c3aed;--purple-bg:#ede9fe;
+  --pink:#db2777;--pink-bg:#fce7f3;
+
+  --font:'Inter',sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:8px;
+  --shadow:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 40px}
+
+/* ── PAGE HEADER ── */
+.page-header{text-align:center;margin-bottom:28px}
+.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.4px;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--text2);max-width:520px;margin:0 auto;line-height:1.6}
+
+/* ── STAGE TABS ── */
+.stage-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)}
+.stab{
+  flex:1;padding:10px 6px;text-align:center;font-size:11px;font-weight:600;
+  color:var(--text2);cursor:pointer;border:none;background:none;
+  border-right:1px solid var(--border);transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.stab:last-child{border-right:none}
+.stab .stab-num{font-size:10px;font-weight:700;font-family:var(--mono);color:var(--text3)}
+.stab.active{background:var(--llm-light);color:var(--llm)}
+.stab.active .stab-num{color:var(--llm)}
+.stab:hover:not(.active){background:var(--surface2)}
+
+/* ── COMPARE GRID ── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.compare-grid{grid-template-columns:1fr}}
+
+/* ── PANEL CARD ── */
+.panel-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+}
+.card-header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+}
+.card-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-title{font-size:13px;font-weight:700;letter-spacing:-.2px}
+.card-tag{font-size:9px;font-weight:600;letter-spacing:1.2px;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-left:auto;flex-shrink:0}
+.card-body{padding:14px 16px}
+
+.llm-card .card-header{background:var(--llm-light);border-bottom-color:var(--llm-mid)}
+.llm-card .card-icon{background:var(--llm);color:#fff}
+.llm-card .card-title{color:var(--llm-dark)}
+.llm-card .card-tag{background:var(--llm-mid);color:var(--llm-dark)}
+
+.mm-card .card-header{background:var(--mm-light);border-bottom-color:var(--mm-mid)}
+.mm-card .card-icon{background:var(--mm);color:#fff}
+.mm-card .card-title{color:var(--mm-dark)}
+.mm-card .card-tag{background:var(--mm-mid);color:var(--mm-dark)}
+
+/* ── DIFF BAR (bottom) ── */
+.diff-bar{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 18px;margin-top:14px;box-shadow:var(--shadow);
+}
+.diff-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text2);margin-bottom:10px}
+.diff-rows{display:grid;grid-template-columns:1fr auto 1fr;gap:8px 12px;align-items:center}
+.diff-left{text-align:right;font-size:11px;color:var(--llm);font-weight:500}
+.diff-center{text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--text3);padding:2px 8px;background:var(--surface2);
+  border-radius:3px;white-space:nowrap}
+.diff-right{font-size:11px;color:var(--mm);font-weight:500}
+
+/* ── info note ── */
+.note{font-size:11px;color:var(--text2);line-height:1.7;background:var(--surface2);
+  border-radius:5px;padding:9px 12px;margin-bottom:10px;border-left:3px solid var(--border2)}
+.note strong{color:var(--text)}
+.note code{font-family:var(--mono);font-size:10px;background:var(--border);
+  padding:1px 5px;border-radius:3px;color:var(--text)}
+
+/* ── SVG panels ── */
+svg.arch{width:100%;overflow:visible;display:block}
+
+/* ── input area ── */
+.input-area{
+  border:1px solid var(--border);border-radius:5px;padding:8px 10px;
+  font-size:11px;color:var(--text2);background:var(--surface2);
+  margin-bottom:10px;line-height:1.6;
+}
+.input-area strong{color:var(--text);font-size:12px;display:block;margin-bottom:3px}
+
+/* ── token chips ── */
+.tok-wrap{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.tok{
+  padding:3px 8px;border-radius:4px;font-size:11px;font-family:var(--mono);
+  font-weight:500;cursor:default;border:1px solid transparent;transition:all .15s;
+}
+.tok:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+
+/* ── mini bar chart ── */
+.bar-chart{display:flex;flex-direction:column;gap:4px;margin:8px 0}
+.bar-row{display:flex;align-items:center;gap:7px;font-size:10px}
+.bar-label{width:68px;text-align:right;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:7px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.bar-val{width:36px;font-size:10px;font-family:var(--mono);color:var(--text2)}
+
+/* ── attn grid ── */
+.attn-grid{display:flex;flex-direction:column;gap:2px}
+.attn-row-g{display:flex;gap:2px}
+.attn-cell{
+  width:28px;height:28px;border-radius:3px;display:flex;align-items:center;
+  justify-content:center;font-size:9px;font-weight:600;cursor:pointer;
+  transition:all .2s;border:1px solid transparent;
+}
+.attn-cell:hover{transform:scale(1.15);z-index:1;border-color:var(--border2)}
+
+/* ── layer stack viz ── */
+.layer-stack{display:flex;flex-direction:column;gap:3px}
+.layer-item{
+  display:flex;align-items:center;gap:8px;padding:5px 10px;
+  border-radius:4px;font-size:11px;cursor:pointer;transition:all .15s;
+  border:1px solid transparent;
+}
+.layer-item:hover{border-color:var(--border2);background:var(--surface2)}
+.layer-num{font-family:var(--mono);font-size:10px;color:var(--text3);width:20px;flex-shrink:0}
+.layer-name{flex:1;font-weight:500}
+.layer-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600}
+
+/* ── run button ── */
+.run-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;
+  border:none;transition:all .2s;font-family:var(--font);
+}
+.run-llm{background:var(--llm);color:#fff}
+.run-llm:hover{background:var(--llm-dark)}
+.run-mm{background:var(--mm);color:#fff}
+.run-mm:hover{background:var(--mm-dark)}
+
+/* ── output stream ── */
+.stream-box{
+  background:var(--surface2);border:1px solid var(--border);border-radius:5px;
+  padding:10px 12px;min-height:54px;font-size:12px;line-height:1.8;
+  color:var(--text);margin-top:8px;font-family:var(--mono);
+}
+.cursor-blink{
+  display:inline-block;width:6px;height:13px;background:var(--llm);
+  vertical-align:text-bottom;animation:blink .85s step-end infinite;margin-left:1px;
+}
+.cursor-mm{background:var(--mm)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── patch grid ── */
+.patch-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:8px 0}
+.patch-cell{
+  aspect-ratio:1;border-radius:2px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;font-weight:700;transition:all .15s;border:1.5px solid transparent;
+}
+.patch-cell:hover,.patch-cell.active{border-color:var(--mm-dark);transform:scale(1.08)}
+
+/* ── flow arrows SVG ── */
+.flow-svg{width:100%;margin:8px 0}
+
+/* ── legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0;font-size:10px;color:var(--text2)}
+.leg-dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+
+/* ── panel switch ── */
+.panel{display:none}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.panel.active{animation:fadeUp .25s ease}
+
+/* ── metric chips ── */
+.metric-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.metric{
+  background:var(--surface2);border:1px solid var(--border);border-radius:5px;
+  padding:7px 10px;font-size:11px;flex:1;min-width:80px;
+}
+.metric .m-val{font-size:16px;font-weight:700;font-family:var(--mono);margin-bottom:1px}
+.metric .m-key{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px}
+
+/* ── modal / tooltip ── */
+.tooltip{
+  position:fixed;background:var(--text);color:#fff;padding:6px 10px;
+  border-radius:5px;font-size:11px;pointer-events:none;z-index:999;
+  opacity:0;transition:opacity .15s;max-width:200px;line-height:1.5;
+}
+.tooltip.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">LLM vs Multimodal Transformer</div>
+  <div class="page-sub">Step-by-step interactive comparison of how a text-only transformer and a multimodal transformer process, attend, and generate differently.</div>
+</div>
+
+<!-- STAGE TABS -->
+<div class="stage-tabs" id="stage-tabs">
+  <button class="stab active" onclick="showStage(0)"><span class="stab-num">01</span>Input &amp; Encoding</button>
+  <button class="stab" onclick="showStage(1)"><span class="stab-num">02</span>Attention</button>
+  <button class="stab" onclick="showStage(2)"><span class="stab-num">03</span>Layer Stack</button>
+  <button class="stab" onclick="showStage(3)"><span class="stab-num">04</span>Cross-Attention</button>
+  <button class="stab" onclick="showStage(4)"><span class="stab-num">05</span>Decoding</button>
+  <button class="stab" onclick="showStage(5)"><span class="stab-num">06</span>Architecture Map</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 0 — INPUT & ENCODING
+═══════════════════════════════════════════ -->
+<div class="panel active" id="stage-0">
+<div class="compare-grid">
+
+  <!-- LLM -->
+  <div class="panel-card llm-card">
+    <div class="card-header">
+      <div class="card-icon">🔤</div>
+      <div>
+        <div class="card-title">LLM Transformer</div>
+        <div style="font-size:10px;color:var(--llm);margin-top:1px">Text-only · Single modality</div>
+      </div>
+      <div class="card-tag">LLM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Input:</strong> Raw text is the sole input. The tokenizer splits text into subword pieces using BPE. Each token maps to a fixed integer ID, then a 768–4096 dim learned vector.</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Query: <strong style="color:var(--text)">"Explain neural networks"</strong></div>
+      <div class="tok-wrap" id="llm-tokens"></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--mono)">Token IDs → Embedding lookup → + Positional encoding</div>
+      <div style="margin-top:10px">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Embedding dims (first token)</div>
+        <div class="bar-chart" id="llm-embed-bars"></div>
+      </div>
+      <div class="metric-row" style="margin-top:10px">
+        <div class="metric"><div class="m-val" style="color:var(--llm)">1</div><div class="m-key">Modalities</div></div>
+        <div class="metric"><div class="m-val" style="color:var(--llm)">~4k</div><div class="m-key">Vocab size</div></div>
+        <div class="metric"><div class="m-val" style="color:var(--llm)">768d</div><div class="m-key">Embed dim</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTIMODAL -->
+  <div class="panel-card mm-card">
+    <div class="card-header">
+      <div class="card-icon">🧩</div>
+      <div>
+        <div class="card-title">Multimodal Transformer</div>
+        <div style="font-size:10px;color:var(--mm);margin-top:1px">Text + Image + Table · Multiple modalities</div>
+      </div>
+      <div class="card-tag">MM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Input:</strong> Multiple modalities processed in parallel. Images → patch tokens. Tables → cell tokens. Audio → spectral tokens. All projected to the <em>same</em> embedding dimension as text.</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Inputs: text + image patches + table cells</div>
+      <div id="mm-input-viz"></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px;font-family:var(--mono)">Each modality → its own encoder → unified 768d space</div>
+      <div class="metric-row" style="margin-top:10px">
+        <div class="metric"><div class="m-val" style="color:var(--mm)">3+</div><div class="m-key">Modalities</div></div>
+        <div class="metric"><div class="m-val" style="color:var(--mm)">256</div><div class="m-key">Img patches</div></div>
+        <div class="metric"><div class="m-val" style="color:var(--mm)">768d</div><div class="m-key">Shared dim</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIFF -->
+<div class="diff-bar">
+  <div class="diff-title">Key Differences — Input Stage</div>
+  <div class="diff-rows">
+    <div class="diff-left">Text tokens only</div><div class="diff-center">Token Types</div><div class="diff-right">Text + patch + cell + audio tokens</div>
+    <div class="diff-left">Single embedding table</div><div class="diff-center">Encoding</div><div class="diff-right">Per-modality encoders → shared space</div>
+    <div class="diff-left">Positional (1D)</div><div class="diff-center">Position Info</div><div class="diff-right">1D (text) + 2D (image grid) + structural (table)</div>
+    <div class="diff-left">~50k vocab IDs</div><div class="diff-center">Tokenization</div><div class="diff-right">BPE text + patch projection + cell embedding</div>
+    <div class="diff-left">Sequential only</div><div class="diff-center">Input Shape</div><div class="diff-right">Sequence + spatial + tabular simultaneously</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 1 — ATTENTION
+═══════════════════════════════════════════ -->
+<div class="panel" id="stage-1">
+<div class="compare-grid">
+
+  <div class="panel-card llm-card">
+    <div class="card-header">
+      <div class="card-icon">🔍</div>
+      <div><div class="card-title">Self-Attention (Text→Text)</div><div style="font-size:10px;color:var(--llm);margin-top:1px">Every token attends to all previous tokens</div></div>
+      <div class="card-tag">LLM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Causal self-attention:</strong> Each query token computes Q·Kᵀ scores against all key tokens (in decoder: masked to past only). Softmax normalises → weighted sum of Values.</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:8px">Click a token to see what it attends to:</div>
+      <div id="llm-attn-tokens" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div id="llm-attn-grid"></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Causal mask: token at position i only sees positions 0…i</div>
+    </div>
+  </div>
+
+  <div class="panel-card mm-card">
+    <div class="card-header">
+      <div class="card-icon">🔀</div>
+      <div><div class="card-title">Cross-Modal Attention</div><div style="font-size:10px;color:var(--mm);margin-top:1px">Text tokens attend to image + table tokens too</div></div>
+      <div class="card-tag">MM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Full cross-modal attention:</strong> Text tokens can query <em>all</em> token types — text, image patches, table cells. No causal mask in encoder. Heads specialise by modality.</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:8px">Click any token type to see cross-modal weights:</div>
+      <div id="mm-attn-tokens" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div id="mm-attn-grid"></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Bidirectional — no causal mask in encoder layers</div>
+    </div>
+  </div>
+</div>
+
+<div class="diff-bar">
+  <div class="diff-title">Key Differences — Attention</div>
+  <div class="diff-rows">
+    <div class="diff-left">Text↔Text only</div><div class="diff-center">Attention Scope</div><div class="diff-right">Text↔Text + Text↔Image + Text↔Table</div>
+    <div class="diff-left">Causal (decoder)</div><div class="diff-center">Mask Type</div><div class="diff-right">Bidirectional encoder + causal decoder</div>
+    <div class="diff-left">Single token space</div><div class="diff-center">Key/Value Pool</div><div class="diff-right">Mixed modality K/V pool</div>
+    <div class="diff-left">~96 heads (GPT-4)</div><div class="diff-center">Attention Heads</div><div class="diff-right">Modality-specialised head groups</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 2 — LAYER STACK
+═══════════════════════════════════════════ -->
+<div class="panel" id="stage-2">
+<div class="compare-grid">
+
+  <div class="panel-card llm-card">
+    <div class="card-header">
+      <div class="card-icon">📚</div>
+      <div><div class="card-title">LLM Layer Stack</div><div style="font-size:10px;color:var(--llm);margin-top:1px">Uniform transformer blocks</div></div>
+      <div class="card-tag">LLM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Homogeneous stack:</strong> Every layer is identical in structure — MultiHead Self-Attention → Add&amp;Norm → FFN → Add&amp;Norm. Only the learned weights differ.</div>
+      <div class="layer-stack" id="llm-layers"></div>
+    </div>
+  </div>
+
+  <div class="panel-card mm-card">
+    <div class="card-header">
+      <div class="card-icon">🏗️</div>
+      <div><div class="card-title">Multimodal Layer Stack</div><div style="font-size:10px;color:var(--mm);margin-top:1px">Specialised encoder + fusion layers</div></div>
+      <div class="card-tag">MM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Heterogeneous stack:</strong> Separate encoder towers per modality (text, vision, audio). Fusion layers merge representations. Late fusion via cross-attention bridges.</div>
+      <div class="layer-stack" id="mm-layers"></div>
+    </div>
+  </div>
+</div>
+
+<div class="diff-bar">
+  <div class="diff-title">Key Differences — Layer Architecture</div>
+  <div class="diff-rows">
+    <div class="diff-left">Single transformer tower</div><div class="diff-center">Structure</div><div class="diff-right">Multiple encoder towers + fusion bridge</div>
+    <div class="diff-left">All layers identical template</div><div class="diff-center">Layer Types</div><div class="diff-right">Self-attn, cross-attn, fusion, projection layers</div>
+    <div class="diff-left">Shared weight matrix</div><div class="diff-center">Parameters</div><div class="diff-right">Modality-specific + shared parameters</div>
+    <div class="diff-left">12–96 layers (GPT)</div><div class="diff-center">Depth</div><div class="diff-right">Vision: 24L + Text: 24L + Fusion: 12L</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 3 — CROSS-ATTENTION DETAIL
+═══════════════════════════════════════════ -->
+<div class="panel" id="stage-3">
+<div class="compare-grid">
+
+  <div class="panel-card llm-card">
+    <div class="card-header">
+      <div class="card-icon">↔️</div>
+      <div><div class="card-title">No Cross-Attention</div><div style="font-size:10px;color:var(--llm);margin-top:1px">Self-attention is the only mechanism</div></div>
+      <div class="card-tag">LLM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Pure self-attention:</strong> The LLM only has self-attention heads. All contextual understanding comes from tokens attending to other tokens <em>in the same sequence</em>. There is no separate K/V bank from another modality.</div>
+      <svg class="arch" viewBox="0 0 280 200" id="llm-self-svg"></svg>
+      <div style="font-size:10px;color:var(--text2);margin-top:4px;font-family:var(--mono)">Q = K = V = same text sequence</div>
+    </div>
+  </div>
+
+  <div class="panel-card mm-card">
+    <div class="card-header">
+      <div class="card-icon">🌉</div>
+      <div><div class="card-title">Cross-Attention Bridge</div><div style="font-size:10px;color:var(--mm);margin-top:1px">Text queries image/table K,V banks</div></div>
+      <div class="card-tag">MM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Cross-attention:</strong> Text decoder queries (Q) attend to image encoder outputs (K, V) and/or table encoder outputs. This grounds textual generation in visual/structured evidence.</div>
+      <svg class="arch" viewBox="0 0 280 200" id="mm-cross-svg"></svg>
+      <div style="font-size:10px;color:var(--text2);margin-top:4px;font-family:var(--mono)">Q = text decoder · K,V = vision/table encoder</div>
+    </div>
+  </div>
+</div>
+
+<div class="diff-bar">
+  <div class="diff-title">Key Differences — Cross-Attention</div>
+  <div class="diff-rows">
+    <div class="diff-left">Q = K = V (same sequence)</div><div class="diff-center">Q/K/V Sources</div><div class="diff-right">Q from text; K,V from image/table encoders</div>
+    <div class="diff-left">Not present</div><div class="diff-center">Cross-Modal Layer</div><div class="diff-right">Dedicated cross-attention blocks at each depth</div>
+    <div class="diff-left">Tokens attend to tokens</div><div class="diff-center">Grounding</div><div class="diff-right">Words grounded in pixel regions / table cells</div>
+    <div class="diff-left">No visual alignment</div><div class="diff-center">Bounding Box</div><div class="diff-right">Attention maps reveal which patches were used</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 4 — DECODING & GENERATION
+═══════════════════════════════════════════ -->
+<div class="panel" id="stage-4">
+<div class="compare-grid">
+
+  <div class="panel-card llm-card">
+    <div class="card-header">
+      <div class="card-icon">✍️</div>
+      <div><div class="card-title">Text Decoding</div><div style="font-size:10px;color:var(--llm);margin-top:1px">Autoregressive next-token prediction</div></div>
+      <div class="card-tag">LLM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Autoregressive:</strong> At each step the model predicts one token, samples it, appends it to context, and repeats. Conditioned only on text context.</div>
+      <input id="llm-gen-q" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:var(--font);background:var(--surface2);color:var(--text);margin-bottom:8px;outline:none" value="What is a neural network?"/>
+      <button class="run-btn run-llm" onclick="runLLMGen()">Generate ▶</button>
+      <div class="stream-box" id="llm-gen-out" style="min-height:64px"><span style="color:var(--text3)">Output will stream here…</span></div>
+      <div id="llm-probs" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="panel-card mm-card">
+    <div class="card-header">
+      <div class="card-icon">🎨</div>
+      <div><div class="card-title">Multimodal Decoding</div><div style="font-size:10px;color:var(--mm);margin-top:1px">Grounded in all input modalities</div></div>
+      <div class="card-tag">MM</div>
+    </div>
+    <div class="card-body">
+      <div class="note"><strong>Grounded generation:</strong> Same autoregressive process, but the decoder cross-attends to image and table encoder states at each step — grounding every token in visual/tabular evidence.</div>
+      <input id="mm-gen-q" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:var(--font);background:var(--surface2);color:var(--text);margin-bottom:8px;outline:none" value="Describe the chart and explain the revenue trend"/>
+      <button class="run-btn run-mm" onclick="runMMGen()">Generate ▶</button>
+      <div class="stream-box" id="mm-gen-out" style="min-height:64px"><span style="color:var(--text3)">Output will stream here…</span></div>
+      <div id="mm-probs" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="diff-bar">
+  <div class="diff-title">Key Differences — Decoding</div>
+  <div class="diff-rows">
+    <div class="diff-left">Text context only</div><div class="diff-center">Conditioning</div><div class="diff-right">Text + image features + table features</div>
+    <div class="diff-left">Pure language prior</div><div class="diff-center">Knowledge Source</div><div class="diff-right">Language prior + visual evidence + structured data</div>
+    <div class="diff-left">May hallucinate facts</div><div class="diff-center">Grounding Risk</div><div class="diff-right">Grounded in actual image/table — lower hallucination</div>
+    <div class="diff-left">Text tokens only</div><div class="diff-center">Output Types</div><div class="diff-right">Text + optionally image tokens / structured output</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STAGE 5 — FULL ARCHITECTURE MAP
+═══════════════════════════════════════════ -->
+<div class="panel" id="stage-5">
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:14px;font-weight:700;color:var(--text)">Full Architecture Comparison</div>
+    <div class="legend">
+      <span><span class="leg-dot" style="background:var(--llm)"></span>LLM pathway</span>
+      <span><span class="leg-dot" style="background:var(--mm)"></span>Multimodal pathway</span>
+      <span><span class="leg-dot" style="background:var(--amber)"></span>Shared / fusion</span>
+    </div>
+  </div>
+  <svg viewBox="0 0 700 420" width="100%" style="display:block" id="arch-map-svg"></svg>
+</div>
+
+<div class="diff-bar" style="margin-top:14px">
+  <div class="diff-title">Summary: When to Use Which</div>
+  <div class="diff-rows">
+    <div class="diff-left">Pure text tasks (coding, writing, Q&amp;A)</div><div class="diff-center">Best For</div><div class="diff-right">Visual Q&amp;A, doc understanding, multimodal reasoning</div>
+    <div class="diff-left">Lower compute, faster inference</div><div class="diff-center">Efficiency</div><div class="diff-right">Higher compute (multiple encoders + fusion)</div>
+    <div class="diff-left">GPT-4, Claude, Llama</div><div class="diff-center">Examples</div><div class="diff-right">GPT-4o, Gemini, LLaVA, Flamingo, CLIP</div>
+    <div class="diff-left">~100B params (large)</div><div class="diff-center">Scale</div><div class="diff-right">~100B text + ~400M vision encoder</div>
+    <div class="diff-left">Text → Text</div><div class="diff-center">I/O</div><div class="diff-right">Text+Image+Table → Text (+ optionally images)</div>
+  </div>
+</div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ── COLOUR CONSTANTS ── */
+const LLM_C = '#4f46e5';
+const LLM_L = '#eef2ff';
+const LLM_M = '#c7d2fe';
+const LLM_D = '#3730a3';
+const MM_C  = '#0d9488';
+const MM_L  = '#f0fdfa';
+const MM_M  = '#99f6e4';
+const MM_D  = '#0f766e';
+const AMB   = '#d97706';
+const AMB_L = '#fef3c7';
+const COR   = '#dc2626';
+const COR_L = '#fee2e2';
+const PUR   = '#7c3aed';
+const PUR_L = '#ede9fe';
+const TXT   = '#1c1f2e';
+const TXT2  = '#5c6080';
+const TXT3  = '#9ba0bc';
+const SURF  = '#ffffff';
+const SURF2 = '#f0f2f8';
+const SURF3 = '#e8ebf5';
+const BDR   = '#dde2f0';
+
+let currentStage = 0;
+let llmAttnActive = 0;
+let mmAttnActive  = 0;
+let genTimerLLM = null, genTimerMM = null;
+let activePatch = 3;
+
+/* ── STAGE SWITCHING ── */
+function showStage(i){
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  document.querySelectorAll('.stab').forEach((b,j)=>b.classList.toggle('active',j===i));
+  currentStage = i;
+  const renders = [renderStage0,renderStage1,renderStage2,renderStage3,renderStage4,renderStage5];
+  renders[i]();
+}
+
+/* ── UTILITIES ── */
+function hash(s){let h=5381;for(let c of String(s))h=(h*33^c.charCodeAt(0))>>>0;return h}
+function randVec(seed,n=8){const v=[];let s=seed;for(let i=0;i<n;i++){s=(s*1664525+1013904223)&0xffffffff;v.push(((s>>>16)/65535)*2-1);}return v;}
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x))}
+function alphaHex(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+
+function svgRect(x,y,w,h,r,fill,stroke='none',sw=1){
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+}
+function svgText(x,y,txt,size=11,fill=TXT,anchor='middle',weight=400,mono=false){
+  const ff = mono?'DM Mono,monospace':'Inter,sans-serif';
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" fill="${fill}" font-weight="${weight}" font-family="${ff}">${txt}</text>`;
+}
+function svgLine(x1,y1,x2,y2,col,sw=1,dash=''){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dash}"/>`;
+}
+function arrowDef(id,col){
+  return `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1.5L8 5L2 8.5" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`;
+}
+function arrowLine(x1,y1,x2,y2,col,mid='',sw=1.2,dash=''){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dash}" marker-end="url(#${mid})"/>`;
+}
+function animArrow(x1,y1,x2,y2,col,dur='1.2s'){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar-${col.replace('#','')})"><animate attributeName="stroke-dashoffset" from="18" to="0" dur="${dur}" repeatCount="indefinite"/></line>`;
+}
+
+/* ══════════════════════════════════
+   STAGE 0 — INPUT & ENCODING
+══════════════════════════════════ */
+function renderStage0(){
+  renderLLMTokens();
+  renderMMInputViz();
+}
+
+const LLM_TOK_COLS = [LLM_C,MM_C,AMB,PUR,COR,'#db2777','#0891b2'];
+const LLM_TOKS = ['Explain','neural','net','works'];
+function renderLLMTokens(){
+  const wrap = document.getElementById('llm-tokens');
+  if(!wrap) return;
+  wrap.innerHTML = LLM_TOKS.map((t,i)=>{
+    const col = LLM_TOK_COLS[i%LLM_TOK_COLS.length];
+    const id  = hash(t)%50000+200;
+    return `<div class="tok" style="background:${alphaHex(col,.1)};color:${col};border-color:${alphaHex(col,.3)}">
+      ${t}<span style="font-size:8px;display:block;color:${col}aa;margin-top:1px">#${id}</span>
+    </div>`;
+  }).join('');
+
+  const barsEl = document.getElementById('llm-embed-bars');
+  if(!barsEl) return;
+  const vec = randVec(hash(LLM_TOKS[0]));
+  const dims = ['d₁','d₂','d₃','d₄','d₅','d₆','d₇','d₈'];
+  barsEl.innerHTML = vec.map((v,i)=>{
+    const pct = ((v+1)/2*100).toFixed(0);
+    const col = v>0?LLM_C:COR;
+    return `<div class="bar-row">
+      <div class="bar-label" style="font-family:var(--mono)">${dims[i]}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="bar-val">${v.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMMInputViz(){
+  const el = document.getElementById('mm-input-viz');
+  if(!el) return;
+  const patchCols = [LLM_C,LLM_C,MM_C,MM_C,AMB,AMB,PUR,PUR,LLM_C,MM_C,AMB,PUR,COR,'#db2777',LLM_C,MM_C];
+  let html = `<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+    <div>
+      <div style="font-size:9px;color:${TXT3};text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-weight:600">📝 Text tokens</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">
+        ${['Describe','chart','revenue'].map(t=>`<div class="tok" style="font-size:10px;background:${alphaHex(LLM_C,.1)};color:${LLM_C};border-color:${alphaHex(LLM_C,.3)}">${t}</div>`).join('')}
+      </div>
+      <div style="font-size:9px;color:${TXT3};text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-weight:600">🖼️ Image → 4×4 patches</div>
+      <div class="patch-wrap" style="grid-template-columns:repeat(4,1fr);max-width:96px">
+        ${patchCols.slice(0,16).map((col,i)=>`
+          <div class="patch-cell" style="background:${alphaHex(col,.2)};border-color:${alphaHex(col,.4)};color:${col};" onclick="selectMMPatch(${i})">${i+1}</div>
+        `).join('')}
+      </div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:${TXT3};text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-weight:600">📊 Table cells</div>
+      <table style="border-collapse:collapse;font-size:10px">
+        <tr>
+          <th style="padding:3px 6px;background:${alphaHex(AMB,.15)};color:${AMB};border:1px solid ${alphaHex(AMB,.3)}">Quarter</th>
+          <th style="padding:3px 6px;background:${alphaHex(AMB,.15)};color:${AMB};border:1px solid ${alphaHex(AMB,.3)}">Rev $M</th>
+        </tr>
+        ${[['Q1','2.1'],['Q2','2.4'],['Q3','2.8']].map(([q,r])=>`
+          <tr>
+            <td style="padding:3px 6px;border:1px solid ${BDR};color:${TXT2}">${q}</td>
+            <td style="padding:3px 6px;border:1px solid ${BDR};color:${TXT};font-family:var(--mono)">${r}</td>
+          </tr>
+        `).join('')}
+      </table>
+      <div style="margin-top:8px;font-size:9px;color:${TXT3}">All projected → 768d</div>
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+/* ══════════════════════════════════
+   STAGE 1 — ATTENTION
+══════════════════════════════════ */
+function renderStage1(){
+  renderLLMAttn();
+  renderMMAttn();
+}
+
+const LLM_ATTN_TOKS = ['Explain','neural','net','works'];
+const MM_ATTN_TOKS = [
+  {t:'Describe',type:'text',col:LLM_C},
+  {t:'chart',type:'text',col:LLM_C},
+  {t:'[P1]',type:'img',col:MM_C},
+  {t:'[P2]',type:'img',col:MM_C},
+  {t:'[Q1]',type:'tbl',col:AMB},
+  {t:'[Q2]',type:'tbl',col:AMB},
+];
+
+function attnW(a,b){
+  const qa=randVec(hash(a),6), kb=randVec(hash(b),6);
+  let s=0; for(let i=0;i<6;i++) s+=qa[i]*kb[i];
+  if(a===b) s+=2;
+  return Math.max(0,s);
+}
+
+function renderLLMAttn(){
+  const tokEl = document.getElementById('llm-attn-tokens');
+  const gridEl = document.getElementById('llm-attn-grid');
+  if(!tokEl||!gridEl) return;
+
+  tokEl.innerHTML = LLM_ATTN_TOKS.map((t,i)=>`
+    <div onclick="selectLLMAttn(${i})" style="padding:4px 9px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;
+      background:${i===llmAttnActive?alphaHex(LLM_C,.15):SURF2};
+      color:${i===llmAttnActive?LLM_C:TXT2};
+      border:1.5px solid ${i===llmAttnActive?LLM_C:BDR};transition:all .15s">${t}</div>
+  `).join('');
+
+  // weights for active token (causal — can only see up to i)
+  const weights = LLM_ATTN_TOKS.map((t,i)=>{
+    if(i > llmAttnActive) return 0; // causal mask
+    return attnW(LLM_ATTN_TOKS[llmAttnActive], t);
+  });
+  const sum = weights.reduce((a,b)=>a+b,0)||1;
+  const norm = weights.map(w=>w/sum);
+
+  const cellSize = 44;
+  const n = LLM_ATTN_TOKS.length;
+  const pad = 36;
+  const w = pad + n*cellSize + 8;
+  const h = pad + n*cellSize + 8;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block">`;
+  // col headers
+  LLM_ATTN_TOKS.forEach((t,i)=>{
+    svg += svgText(pad + i*cellSize + cellSize/2, 20, t, 9, TXT3, 'middle');
+  });
+  // row headers + cells
+  LLM_ATTN_TOKS.forEach((qt,qi)=>{
+    svg += svgText(pad-4, pad + qi*cellSize + cellSize/2+4, qt, 9, TXT3, 'end');
+    LLM_ATTN_TOKS.forEach((kt,ki)=>{
+      const isActive = qi===llmAttnActive;
+      const isMasked = ki > qi; // causal mask
+      const w_ij = isMasked ? 0 : attnW(qt,kt) / (LLM_ATTN_TOKS.slice(0,qi+1).map(k=>attnW(qt,k)).reduce((a,b)=>a+b,0)||1);
+      const alpha = isMasked ? 0.06 : 0.1 + w_ij * 0.85;
+      const cellCol = isActive ? LLM_C : (isMasked ? TXT3 : LLM_C);
+      const x = pad + ki*cellSize + 2;
+      const y = pad + qi*cellSize + 2;
+      svg += svgRect(x, y, cellSize-4, cellSize-4, 4, alphaHex(cellCol, alpha), isActive?alphaHex(LLM_C,.3):'none', 1);
+      if(!isMasked) svg += svgText(x+(cellSize-4)/2, y+(cellSize-4)/2+4, `${Math.round(w_ij*100)}%`, 9, isActive?LLM_D:TXT3, 'middle', isActive?600:400);
+      else svg += svgText(x+(cellSize-4)/2, y+(cellSize-4)/2+4, '✕', 9, TXT3, 'middle');
+    });
+  });
+  svg += `<text x="${pad}" y="${h-4}" font-size="9" fill="${TXT3}" font-family="Inter,sans-serif">Row = query · Col = key · ✕ = causal mask</text>`;
+  svg += '</svg>';
+  gridEl.innerHTML = svg;
+}
+
+function selectLLMAttn(i){ llmAttnActive=i; renderLLMAttn(); }
+
+function renderMMAttn(){
+  const tokEl = document.getElementById('mm-attn-tokens');
+  const gridEl = document.getElementById('mm-attn-grid');
+  if(!tokEl||!gridEl) return;
+
+  tokEl.innerHTML = MM_ATTN_TOKS.map((t,i)=>{
+    const col = t.col;
+    const isActive = i===mmAttnActive;
+    return `<div onclick="selectMMAttn(${i})" style="padding:4px 9px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;
+      background:${isActive?alphaHex(col,.15):SURF2};
+      color:${isActive?col:TXT2};
+      border:1.5px solid ${isActive?col:BDR};transition:all .15s">${t.t}</div>`;
+  }).join('');
+
+  const cellSize = 38;
+  const n = MM_ATTN_TOKS.length;
+  const pad = 46;
+  const w = pad + n*cellSize + 8;
+  const h = pad + n*cellSize + 8;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block">`;
+  MM_ATTN_TOKS.forEach((t,i)=>{
+    svg += svgText(pad + i*cellSize + cellSize/2, 20, t.t, 8, t.col, 'middle', 600);
+    svg += svgText(pad + i*cellSize + cellSize/2, 30, t.type, 7, TXT3, 'middle');
+  });
+  MM_ATTN_TOKS.forEach((qt,qi)=>{
+    svg += svgText(pad-4, pad + qi*cellSize + cellSize/2+4, qt.t, 8, qt.col, 'end', 600);
+    const rowWeights = MM_ATTN_TOKS.map(kt=>attnW(qt.t, kt.t));
+    const rowSum = rowWeights.reduce((a,b)=>a+b,0)||1;
+    MM_ATTN_TOKS.forEach((kt,ki)=>{
+      const isActive = qi===mmAttnActive;
+      const w_ij = rowWeights[ki]/rowSum;
+      const alpha = 0.08 + w_ij*0.88;
+      // cross-modal gets teal, same-modal stays in own colour
+      const sameModal = qt.type===kt.type;
+      const cellCol = sameModal ? qt.col : MM_C;
+      const x = pad + ki*cellSize + 1;
+      const y = pad + qi*cellSize + 1;
+      svg += svgRect(x, y, cellSize-2, cellSize-2, 3, alphaHex(cellCol, isActive?alpha:alpha*.4), isActive?alphaHex(cellCol,.4):'none');
+      svg += svgText(x+(cellSize-2)/2, y+(cellSize-2)/2+4, `${Math.round(w_ij*100)}%`, 8, isActive?cellCol:TXT3, 'middle', isActive?600:400);
+    });
+  });
+  svg += `<text x="${pad}" y="${h-4}" font-size="9" fill="${TXT3}" font-family="Inter,sans-serif">No causal mask in encoder — bidirectional cross-modal</text>`;
+  svg += '</svg>';
+  gridEl.innerHTML = svg;
+}
+
+function selectMMAttn(i){ mmAttnActive=i; renderMMAttn(); }
+function selectMMPatch(i){ activePatch=i; }
+
+/* ══════════════════════════════════
+   STAGE 2 — LAYER STACK
+══════════════════════════════════ */
+function renderStage2(){
+  const llmLayers = [
+    {n:'L1',name:'Self-Attn + FFN',note:'Edge-level features',col:LLM_C,badge:'Self-Attn'},
+    {n:'L2',name:'Self-Attn + FFN',note:'Syntax / structure',col:LLM_C,badge:'Self-Attn'},
+    {n:'L3',name:'Self-Attn + FFN',note:'Phrase-level meaning',col:LLM_C,badge:'Self-Attn'},
+    {n:'L4',name:'Self-Attn + FFN',note:'Entity resolution',col:LLM_C,badge:'Self-Attn'},
+    {n:'L5',name:'Self-Attn + FFN',note:'Co-reference, logic',col:LLM_C,badge:'Self-Attn'},
+    {n:'L6',name:'Self-Attn + FFN',note:'High-level semantics',col:LLM_C,badge:'Self-Attn'},
+    {n:'L7',name:'Self-Attn + FFN',note:'World knowledge',col:LLM_C,badge:'Self-Attn'},
+    {n:'L8',name:'LM Head (proj)',note:'Vocab projection 50k',col:PUR,badge:'Output'},
+  ];
+  const mmLayers = [
+    {n:'VL1',name:'Vision: Patch Self-Attn',note:'Edge/texture features',col:MM_C,badge:'ViT'},
+    {n:'VL2',name:'Vision: Self-Attn',note:'Object part detection',col:MM_C,badge:'ViT'},
+    {n:'VL3',name:'Vision: Self-Attn',note:'Semantic regions',col:MM_C,badge:'ViT'},
+    {n:'TL1',name:'Text: Self-Attn + FFN',note:'Token embeddings',col:LLM_C,badge:'Text'},
+    {n:'TL2',name:'Text: Self-Attn + FFN',note:'Syntax / phrases',col:LLM_C,badge:'Text'},
+    {n:'FL1',name:'Fusion Cross-Attn',note:'Text attends to image K,V',col:AMB,badge:'Fusion'},
+    {n:'FL2',name:'Fusion Cross-Attn',note:'Grounded multimodal repr.',col:AMB,badge:'Fusion'},
+    {n:'DL1',name:'Decoder + LM Head',note:'Grounded generation',col:PUR,badge:'Output'},
+  ];
+
+  const render = (id, layers, activeCol)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = layers.map(l=>`
+      <div class="layer-item" style="border-color:${alphaHex(l.col,.2)};background:${alphaHex(l.col,.04)}">
+        <div class="layer-num">${l.n}</div>
+        <div class="layer-name" style="color:${l.col}">${l.name}</div>
+        <div style="font-size:10px;color:${TXT3};flex:1">${l.note}</div>
+        <div class="layer-badge" style="background:${alphaHex(l.col,.15)};color:${l.col}">${l.badge}</div>
+      </div>
+    `).join('');
+  };
+  render('llm-layers', llmLayers, LLM_C);
+  render('mm-layers', mmLayers, MM_C);
+}
+
+/* ══════════════════════════════════
+   STAGE 3 — CROSS-ATTENTION DETAIL
+══════════════════════════════════ */
+function renderStage3(){
+  renderLLMSelfSVG();
+  renderMMCrossSVG();
+}
+
+function renderLLMSelfSVG(){
+  const el = document.getElementById('llm-self-svg');
+  if(!el) return;
+  let s = arrowDef('a-llm', LLM_C);
+  // tokens at top
+  const toks = ['Explain','neural','net','works'];
+  const tx = [20,80,145,205];
+  const tw = 52;
+  toks.forEach((t,i)=>{
+    s += svgRect(tx[i], 10, tw, 24, 4, alphaHex(LLM_C,.12), alphaHex(LLM_C,.3));
+    s += svgText(tx[i]+tw/2, 26, t, 9, LLM_D, 'middle', 600);
+  });
+  // Q K V boxes
+  const layers = [{label:'Q',col:LLM_C,y:60},{label:'K',col:MM_C,y:60},{label:'V',col:AMB,y:60}];
+  const lx = [30,110,190];
+  layers.forEach((l,i)=>{
+    s += svgRect(lx[i], l.y, 50, 22, 4, alphaHex(l.col,.15), alphaHex(l.col,.4));
+    s += svgText(lx[i]+25, l.y+14, l.label, 11, l.col, 'middle', 700);
+  });
+  // Arrows from tokens down to Q,K,V
+  toks.forEach((_,i)=>{
+    [[30,60],[110,60],[190,60]].forEach(([lx2,ly])=>{
+      s += `<line x1="${tx[i]+tw/2}" y1="34" x2="${lx2+25}" y2="${ly}" stroke="${LLM_C}" stroke-width="0.5" opacity="0.3" stroke-dasharray="3 2"/>`;
+    });
+  });
+  // dot product
+  s += svgRect(60, 98, 100, 22, 4, alphaHex(PUR,.12), alphaHex(PUR,.3));
+  s += svgText(110, 112, 'Q·Kᵀ / √d', 10, PUR, 'middle', 600);
+  s += arrowLine(55,71,80,98,LLM_C,'a-llm');
+  s += arrowLine(135,71,130,98,MM_C,'a-llm');
+
+  // softmax
+  s += svgRect(60, 134, 100, 22, 4, alphaHex(PUR,.12), alphaHex(PUR,.3));
+  s += svgText(110, 148, 'Softmax → weights', 10, PUR, 'middle', 600);
+  s += arrowLine(110,120,110,134,PUR,'a-llm');
+
+  // weighted V
+  s += svgRect(60, 165, 100, 22, 4, alphaHex(AMB,.15), alphaHex(AMB,.3));
+  s += svgText(110, 179, 'Weighted sum(V)', 10, AMB, 'middle', 600);
+  s += arrowLine(110,156,110,165,PUR,'a-llm');
+  s += `<line x1="215" y1="71" x2="160" y2="165" stroke="${AMB}" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#a-llm)"/>`;
+
+  // label
+  s += svgText(140, 196, 'Q=K=V from same sequence', 9, TXT3, 'middle');
+  el.innerHTML = s;
+}
+
+function renderMMCrossSVG(){
+  const el = document.getElementById('mm-cross-svg');
+  if(!el) return;
+  let s = arrowDef('a-mm', MM_C);
+  s += arrowDef('a-mm2', AMB);
+  s += arrowDef('a-mm3', LLM_C);
+
+  // text decoder (Q)
+  s += svgRect(10, 10, 80, 50, 5, alphaHex(LLM_C,.1), alphaHex(LLM_C,.3));
+  s += svgText(50, 30, 'Text', 10, LLM_C, 'middle', 700);
+  s += svgText(50, 44, 'Decoder Q', 9, LLM_D, 'middle');
+
+  // vision encoder (K,V)
+  s += svgRect(110, 10, 75, 50, 5, alphaHex(MM_C,.1), alphaHex(MM_C,.3));
+  s += svgText(147, 30, 'Vision', 10, MM_C, 'middle', 700);
+  s += svgText(147, 44, 'Encoder K,V', 9, MM_D, 'middle');
+
+  // table encoder (K,V)
+  s += svgRect(198, 10, 75, 50, 5, alphaHex(AMB,.1), alphaHex(AMB,.3));
+  s += svgText(235, 30, 'Table', 10, AMB, 'middle', 700);
+  s += svgText(235, 44, 'Encoder K,V', 9, '#854d0e', 'middle');
+
+  // cross-attn block
+  s += svgRect(60, 86, 160, 30, 5, alphaHex(MM_C,.12), alphaHex(MM_C,.4));
+  s += svgText(140, 104, 'Cross-Attention Block', 10, MM_D, 'middle', 700);
+
+  // arrows Q → cross-attn
+  s += arrowLine(50, 60, 90, 86, LLM_C, 'a-mm3');
+  // arrows K,V → cross-attn
+  s += arrowLine(147, 60, 140, 86, MM_C, 'a-mm');
+  s += arrowLine(235, 60, 185, 86, AMB, 'a-mm2');
+
+  // labels on arrows
+  s += svgText(65, 78, 'Q', 9, LLM_C, 'middle', 700);
+  s += svgText(148, 75, 'K,V', 9, MM_C, 'middle', 700);
+  s += svgText(218, 75, 'K,V', 9, AMB, 'middle', 700);
+
+  // softmax
+  s += svgRect(80, 132, 120, 24, 4, alphaHex(PUR,.1), alphaHex(PUR,.3));
+  s += svgText(140, 147, 'Softmax(Q·Kᵀ/√d)·V', 9, PUR, 'middle', 600);
+  s += arrowLine(140,116,140,132,MM_C,'a-mm');
+
+  // output
+  s += svgRect(80, 170, 120, 24, 4, alphaHex(MM_C,.12), alphaHex(MM_C,.3));
+  s += svgText(140, 185, 'Grounded output token', 10, MM_D, 'middle', 700);
+  s += arrowLine(140,156,140,170,PUR,'a-mm');
+
+  s += svgText(140, 198, 'Q=text, K=V=image/table', 9, TXT3, 'middle');
+  el.innerHTML = s;
+}
+
+/* ══════════════════════════════════
+   STAGE 4 — DECODING
+══════════════════════════════════ */
+function renderStage4(){ /* already wired via HTML */ }
+
+const LLM_RESP = {
+  default:'A neural network is a computational model inspired by the human brain. It consists of layers of interconnected nodes (neurons) that process input signals. Weights are learned during training via backpropagation to minimise prediction loss.',
+  train:'Training involves forward propagation of data, computing a loss function against ground truth labels, then backpropagating gradients to update weights via an optimiser like Adam or SGD.',
+  embed:'Embeddings map discrete tokens to continuous high-dimensional vectors. Similar concepts cluster nearby in this space — enabling semantic similarity search and transfer learning across tasks.',
+};
+const MM_RESP = {
+  default:'The bar chart shows quarterly revenue for FY2024: Q1 $2.1M → Q2 $2.4M → Q3 $2.8M → Q4 $3.2M. Revenue grew at a consistent ~15% QoQ rate. The upward trend is clearly visible in both the chart image and table data.',
+  expense:'From the table, operating expenses grew from $1.45M (Q1) to $1.90M (Q4) — a 31% increase — while revenue grew 52%, indicating improving operational leverage and margin expansion.',
+  trend:'The chart image confirms a monotonically increasing bar series with no outliers. Table cross-validation shows QoQ growth of 14.3%, 16.7%, 14.3% — highly consistent, suggesting a stable growth engine.',
+};
+
+function runLLMGen(){
+  const q = document.getElementById('llm-gen-q').value.toLowerCase();
+  let resp = LLM_RESP.default;
+  if(q.includes('train')||q.includes('backprop')) resp = LLM_RESP.train;
+  if(q.includes('embed')||q.includes('vector')) resp = LLM_RESP.embed;
+  stream('llm-gen-out', resp, LLM_C, ()=>showProbs('llm-probs', LLM_C));
+  if(genTimerLLM) clearInterval(genTimerLLM);
+}
+function runMMGen(){
+  const q = document.getElementById('mm-gen-q').value.toLowerCase();
+  let resp = MM_RESP.default;
+  if(q.includes('expense')||q.includes('cost')) resp = MM_RESP.expense;
+  if(q.includes('trend')||q.includes('growth')) resp = MM_RESP.trend;
+  stream('mm-gen-out', resp, MM_C, ()=>showProbs('mm-probs', MM_C));
+}
+
+function stream(id, text, col, cb){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '';
+  let i=0;
+  const t = setInterval(()=>{
+    if(i>=text.length){clearInterval(t);el.innerHTML=text+`<span class="cursor-blink" style="background:${col}"></span>`;if(cb)cb();return;}
+    el.innerHTML = text.slice(0,++i);
+  }, 18);
+}
+
+function showProbs(id, col){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const cands = ['learning','system','model','process','architecture','method'];
+  const probs = cands.map(w=>({w,p:Math.random()}));
+  const sum = probs.reduce((a,b)=>a+b.p,0);
+  probs.forEach(p=>p.p/=sum); probs.sort((a,b)=>b.p-a.p);
+  el.innerHTML = `<div style="font-size:10px;color:${TXT2};margin-bottom:5px;text-transform:uppercase;letter-spacing:.8px;font-weight:600">Next-token distribution</div>` +
+    probs.slice(0,5).map((p,i)=>{
+      const pct = Math.round(p.p*100);
+      return `<div class="bar-row"><div class="bar-label" style="font-family:var(--mono)">${p.w}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct*2.4}px;max-width:100%;background:${i===0?col:TXT3}"></div></div>
+        <div class="bar-val">${pct}%</div></div>`;
+    }).join('');
+}
+
+/* ══════════════════════════════════
+   STAGE 5 — ARCH MAP
+══════════════════════════════════ */
+function renderStage5(){
+  const el = document.getElementById('arch-map-svg');
+  if(!el) return;
+  let s = '';
+  s += arrowDef('a1', LLM_C);
+  s += arrowDef('a2', MM_C);
+  s += arrowDef('a3', AMB);
+  s += arrowDef('a4', TXT2);
+
+  // ── LLM COLUMN (left) ──
+  const LX = 30;
+  const boxes = [
+    {y:20,h:32,label:'Text Input',sub:'"What is X?"',col:LLM_C},
+    {y:72,h:32,label:'Tokenizer (BPE)',sub:'→ token IDs',col:LLM_C},
+    {y:124,h:32,label:'Embedding Table',sub:'token_id → 768d vec',col:LLM_C},
+    {y:176,h:32,label:'+ Positional Enc.',sub:'1D sinusoidal / RoPE',col:LLM_C},
+    {y:228,h:60,label:'Transformer Stack',sub:'N × [Self-Attn → FFN]\nCausal mask in decoder',col:LLM_C},
+    {y:308,h:32,label:'LM Head',sub:'768d → 50k vocab logits',col:PUR},
+    {y:360,h:32,label:'Text Output',sub:'Sampled token stream',col:LLM_C},
+  ];
+  boxes.forEach((b,i)=>{
+    s += svgRect(LX, b.y, 180, b.h, 5, alphaHex(b.col,.1), alphaHex(b.col,.35));
+    s += svgText(LX+90, b.y+b.h/2-5, b.label, 11, b.col, 'middle', 700);
+    s += svgText(LX+90, b.y+b.h/2+8, b.sub.split('\n')[0], 9, b.col==='#4f46e5'?LLM_D:TXT2, 'middle');
+    if(b.sub.includes('\n')) s += svgText(LX+90, b.y+b.h/2+19, b.sub.split('\n')[1], 8, TXT3, 'middle');
+    if(i<boxes.length-1){
+      const nextY = boxes[i+1].y;
+      s += arrowLine(LX+90, b.y+b.h, LX+90, nextY-1, b.col, 'a1', 1.5);
+    }
+  });
+  s += svgText(LX+90, 12, 'LLM Transformer', 12, LLM_D, 'middle', 700);
+
+  // ── MM COLUMN (right) ──
+  const MX = 390;
+
+  // Text branch
+  const textBranch = [
+    {y:40,h:28,label:'Text Input',sub:'"Describe chart"',col:LLM_C},
+    {y:88,h:28,label:'Text Encoder',sub:'Tokenize → embed → 768d',col:LLM_C},
+  ];
+  // Image branch
+  const imgBranch = [
+    {y:40,h:28,label:'Image Input',sub:'Raw pixels (224×224)',col:MM_C},
+    {y:88,h:28,label:'Patch Embed',sub:'14×14 patches → 768d',col:MM_C},
+    {y:136,h:28,label:'Vision Encoder',sub:'ViT self-attn × 24L',col:MM_C},
+  ];
+  // Table branch
+  const tblBranch = [
+    {y:40,h:28,label:'Table Input',sub:'CSV / structured data',col:AMB},
+    {y:88,h:28,label:'Cell Encoder',sub:'cell+type+pos → 768d',col:AMB},
+  ];
+
+  // columns: text=480, img=560, table=640 → span within MX..MX+240
+  const cols = [
+    {bx:MX,     branch:textBranch, col:LLM_C},
+    {bx:MX+82,  branch:imgBranch,  col:MM_C},
+    {bx:MX+164, branch:tblBranch,  col:AMB},
+  ];
+
+  cols.forEach(({bx,branch,col})=>{
+    branch.forEach((b,i)=>{
+      s += svgRect(bx, b.y, 76, b.h, 4, alphaHex(col,.1), alphaHex(col,.35));
+      s += svgText(bx+38, b.y+b.h/2-3, b.label, 8, col, 'middle', 700);
+      s += svgText(bx+38, b.y+b.h/2+7, b.sub, 7, TXT3, 'middle');
+      if(i<branch.length-1){
+        s += arrowLine(bx+38, b.y+b.h, bx+38, branch[i+1].y, col, 'a2', 1);
+      }
+    });
+  });
+
+  // Fusion box
+  s += svgRect(MX, 180, 256, 38, 5, alphaHex(AMB,.12), alphaHex(AMB,.4));
+  s += svgText(MX+128, 196, 'Fusion Layer (Cross-Attention)', 11, '#854d0e', 'middle', 700);
+  s += svgText(MX+128, 210, 'Text Q attends to Vision K,V + Table K,V', 8, TXT2, 'middle');
+
+  // arrows into fusion
+  s += arrowLine(MX+38, textBranch[textBranch.length-1].y+28, MX+70, 180, LLM_C, 'a3',1);
+  s += arrowLine(MX+120, imgBranch[imgBranch.length-1].y+28, MX+128, 180, MM_C, 'a3',1);
+  s += arrowLine(MX+202, tblBranch[tblBranch.length-1].y+28, MX+186, 180, AMB, 'a3',1);
+
+  // Multimodal transformer stack
+  s += svgRect(MX, 236, 256, 52, 5, alphaHex(MM_C,.1), alphaHex(MM_C,.35));
+  s += svgText(MX+128, 255, 'Multimodal Transformer Stack', 11, MM_D, 'middle', 700);
+  s += svgText(MX+128, 269, 'N × [Self-Attn + Cross-Attn + FFN]', 9, TXT2, 'middle');
+  s += svgText(MX+128, 281, 'Bidirectional encoder + causal decoder', 8, TXT3, 'middle');
+  s += arrowLine(MX+128, 218, MX+128, 236, AMB, 'a3', 1.5);
+
+  // LM Head
+  s += svgRect(MX, 306, 256, 30, 5, alphaHex(PUR,.1), alphaHex(PUR,.3));
+  s += svgText(MX+128, 322, 'LM Head → vocab logits', 11, PUR, 'middle', 700);
+  s += arrowLine(MX+128, 288, MX+128, 306, MM_C, 'a2', 1.5);
+
+  // Output
+  s += svgRect(MX, 354, 256, 30, 5, alphaHex(MM_C,.1), alphaHex(MM_C,.35));
+  s += svgText(MX+128, 370, 'Grounded Text Output', 11, MM_D, 'middle', 700);
+  s += svgText(MX+128, 382, 'Grounded in image + table evidence', 8, TXT3, 'middle');
+  s += arrowLine(MX+128, 336, MX+128, 354, PUR, 'a2', 1.5);
+
+  s += svgText(MX+128, 14, 'Multimodal Transformer', 12, MM_D, 'middle', 700);
+
+  // ── VS divider ──
+  const MID = 360;
+  s += svgLine(MID, 5, MID, 415, BDR, 1, '4 3');
+  s += svgRect(MID-14, 195, 28, 22, 4, SURF2, BDR);
+  s += svgText(MID, 209, 'VS', 11, TXT2, 'middle', 700);
+
+  el.innerHTML = s;
+}
+
+/* ── INIT ── */
+renderStage0();
+</script>
+</body>
+</html>
