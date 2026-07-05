@@ -1,0 +1,12 @@
+DOCUMENT TITLE: Customer Data Privacy & AI Security Guidelines
+VERSION: 3.0
+EFFECTIVE DATE: May 1, 2026
+
+1. PERSONALLY IDENTIFIABLE INFORMATION (PII)
+To comply with global data privacy regulations, all customer PII must be protected. Support systems, including automated AI chat logs, must actively mask email addresses and phone numbers. For example, user@email.com should be logged as [REDACTED_EMAIL].
+
+2. CRM ACCESS CONTROL
+Automated support systems and AI agents operate under a "Read-Only by Default" security posture. Agents may query the CRM using SELECT operations to retrieve order status or customer profiles. 
+
+3. STATE-CHANGING ACTIONS
+Any action that modifies the database state (e.g., executing a refund, updating a billing address) must be executed via secure, pre-approved API endpoints. Direct database UPDATE commands by autonomous systems are strictly prohibited.

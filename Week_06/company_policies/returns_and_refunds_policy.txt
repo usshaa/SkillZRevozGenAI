@@ -1,0 +1,15 @@
+DOCUMENT TITLE: Corporate Return and Refund Policy
+VERSION: 2.1
+EFFECTIVE DATE: January 1, 2026
+
+1. STANDARD RETURN WINDOW
+Customers are eligible to return physical merchandise for a full refund within 30 days of the original delivery date. Digital products and software licenses are non-refundable once activated.
+
+2. CONDITIONS FOR RETURN
+Items must be returned in their original packaging, unopened, and free of any physical damage. If an item is returned damaged or missing parts, a restocking fee of up to 50% may be applied, or the refund may be denied entirely.
+
+3. REFUND PROCESSING
+All refund requests must be accompanied by a valid Order ID (formatted as ORD-XXXXX). Once a return is received and inspected at our fulfillment center, or if a refund is approved for a non-returned item by a supervisor, the funds will be credited back to the original payment method within 3 to 5 business days. 
+
+4. AGENT AUTHORIZATION
+Tier 1 Support Agents are not authorized to process refunds exceeding $500 without a Human-in-the-Loop (HITL) supervisor approval gateway.
