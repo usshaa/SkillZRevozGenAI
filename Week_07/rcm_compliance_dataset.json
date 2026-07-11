@@ -1,0 +1,1603 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 58yo male presents to the ED with crushing substernal chest pain radiating to the left arm. EKG shows ST-segment elevation in leads V1-V4. Troponin markedly elevated. Cardiology confirms an acute anterior wall STEMI and the patient is taken emergently for PCI with stent placement to the LAD. Billing submitted code: I21.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"I21.9\"\n  ],\n  \"correct_codes\": [\n    \"I21.09\"\n  ],\n  \"justification\": \"The cardiac catheterization report and EKG findings specifically localize the infarction to the anterior wall via the LAD. Submitting the unspecified code I21.9 fails to capture this documented specificity. The correct code is I21.09 (STEMI involving other coronary artery of anterior wall).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 71yo female with a history of hypertension presents with palpitations and irregular heartbeat. EKG confirms atrial fibrillation with rapid ventricular response. Patient is started on rate control therapy and anticoagulation. Billing submitted code: I48.91."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"I48.91\"\n  ],\n  \"correct_codes\": [\n    \"I48.91\"\n  ],\n  \"justification\": \"The submitted code I48.91 (Unspecified atrial fibrillation) accurately reflects the physician's documentation, which does not specify paroxysmal, persistent, or chronic subtype. No further specificity is available in the chart to warrant a variance.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 34yo male involved in a motorcycle collision sustains a closed, displaced fracture of the mid-shaft of the right femur, confirmed on X-ray. Patient undergoes open reduction and internal fixation (ORIF) the same day. Billing submitted code: S72.90XA."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"S72.90XA\"\n  ],\n  \"correct_codes\": [\n    \"S72.301A\"\n  ],\n  \"justification\": \"Imaging and the operative note document a displaced fracture of the shaft of the right femur. The submitted code S72.90XA is an unspecified fracture of an unspecified femur, which severely undercodes the encounter. The correct code is S72.301A (Displaced fracture of shaft of right femur, initial encounter).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 67yo female reports chronic bilateral knee pain worsened by activity. X-rays reveal joint space narrowing and osteophyte formation in both knees consistent with primary osteoarthritis. Billing submitted code: M17.0."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"M17.0\"\n  ],\n  \"correct_codes\": [\n    \"M17.0\"\n  ],\n  \"justification\": \"The submitted code M17.0 (Bilateral primary osteoarthritis of knee) is fully supported by the radiographic findings and physician's diagnosis of bilateral involvement.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 4yo male presents with ear pain and fever. Otoscopic exam of the right ear reveals a bulging, erythematous tympanic membrane with active purulent drainage through a visible perforation, consistent with acute suppurative otitis media with spontaneous rupture. Billing submitted code: H66.90."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"H66.90\"\n  ],\n  \"correct_codes\": [\n    \"H66.011\"\n  ],\n  \"justification\": \"The exam documents a spontaneous tympanic membrane rupture with purulent drainage from the right ear, a highly specific finding. The submitted H66.90 (unspecified otitis media) does not reflect this. The correct code is H66.011 (Acute suppurative otitis media with spontaneous rupture of ear drum, right ear).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 2yo female brought in after a brief generalized tonic-clonic seizure during a fever of 102.9F. No prior seizure history. Physician documents a simple febrile seizure. Billing submitted code: R56.00."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"R56.00\"\n  ],\n  \"correct_codes\": [\n    \"R56.00\"\n  ],\n  \"justification\": \"The submitted code R56.00 (Simple febrile convulsions) matches the physician's documentation of a single, brief seizure occurring in the context of fever with no prior history.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 80yo female arrives with confusion, fever, and hypotension. Urinalysis is positive for a UTI. Blood cultures are drawn and the physician documents that the patient meets criteria for sepsis secondary to the urinary source, with a SIRS response noted. Billing submitted code: N39.0."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"N39.0\"\n  ],\n  \"correct_codes\": [\n    \"A41.9\",\n    \"N39.0\"\n  ],\n  \"justification\": \"The physician explicitly documents sepsis secondary to the UTI, which is a distinct and more severe reportable condition. Submitting only N39.0 omits the sepsis diagnosis entirely. The correct coding requires A41.9 (Sepsis, unspecified organism) sequenced with N39.0 (Urinary tract infection) as the localized source.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 19yo male struck his head during a basketball game. He reports brief dizziness but denies loss of consciousness. Neuro exam is normal. Physician diagnoses a concussion without loss of consciousness. Billing submitted code: S06.0X0A."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"S06.0X0A\"\n  ],\n  \"correct_codes\": [\n    \"S06.0X0A\"\n  ],\n  \"justification\": \"The submitted code S06.0X0A (Concussion without loss of consciousness, initial encounter) precisely matches the documented mechanism and exam findings.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 76yo male with known dysphagia is admitted with fever and productive cough. Chest CT and clinical context, including a witnessed choking episode with food prior to symptom onset, lead the physician to diagnose aspiration pneumonia. Billing submitted code: J18.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"J18.9\"\n  ],\n  \"correct_codes\": [\n    \"J69.0\"\n  ],\n  \"justification\": \"The documentation clearly attributes the pneumonia to aspiration of food secondary to dysphagia, a specific and clinically distinct etiology. The unspecified code J18.9 does not capture this. The correct code is J69.0 (Pneumonitis due to inhalation of food and vomit).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 16yo female with known moderate persistent asthma presents with wheezing and increased work of breathing despite home rescue inhaler use. Physician documents a moderate persistent asthma exacerbation and administers nebulized treatments. Billing submitted code: J45.41."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"J45.41\"\n  ],\n  \"correct_codes\": [\n    \"J45.41\"\n  ],\n  \"justification\": \"The submitted code J45.41 (Moderate persistent asthma with (acute) exacerbation) is consistent with the documented asthma severity classification and current exacerbation.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 69yo male with known stage 3 chronic kidney disease presents with decreased urine output and a creatinine that has risen from a baseline of 1.6 to 3.4 over 48 hours. Physician documents acute kidney injury superimposed on chronic kidney disease. Billing submitted code: N18.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"N18.9\"\n  ],\n  \"correct_codes\": [\n    \"N17.9\",\n    \"N18.30\"\n  ],\n  \"justification\": \"The documented acute rise in creatinine represents a new, superimposed acute kidney injury, not merely the baseline chronic disease. The submitted N18.9 (unspecified CKD) fails to capture the acute event. Correct coding requires N17.9 (Acute kidney injury, unspecified) in addition to the specific CKD stage, N18.30.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 55yo male with end-stage renal disease presents for his scheduled hemodialysis session via an arteriovenous fistula. No acute complications noted. Billing submitted code: N18.6."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"N18.6\"\n  ],\n  \"correct_codes\": [\n    \"N18.6\"\n  ],\n  \"justification\": \"The submitted code N18.6 (End stage renal disease) directly matches the documented diagnosis and routine dialysis encounter.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 22yo female with Type 1 diabetes presents with nausea, vomiting, and abdominal pain. Labs show a blood glucose of 480 mg/dL, arterial pH of 7.18, and positive serum ketones. Physician diagnoses diabetic ketoacidosis. Billing submitted code: E10.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"E10.9\"\n  ],\n  \"correct_codes\": [\n    \"E10.10\"\n  ],\n  \"justification\": \"The lab values and clinical presentation confirm diabetic ketoacidosis, a distinct acute complication. The submitted E10.9 (Type 1 diabetes without complications) contradicts this finding. The correct code is E10.10 (Type 1 diabetes mellitus with ketoacidosis without coma).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 48yo female presents with fatigue and weight gain. TSH is markedly elevated with a low free T4. Physician diagnoses primary hypothyroidism and starts levothyroxine. Billing submitted code: E03.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"E03.9\"\n  ],\n  \"correct_codes\": [\n    \"E03.9\"\n  ],\n  \"justification\": \"The submitted code E03.9 (Hypothyroidism, unspecified) is appropriate as the documentation does not specify a more granular etiology such as autoimmune or iatrogenic causes.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 59yo male presents with melena and lightheadedness. EGD reveals an actively bleeding duodenal ulcer, which is treated with endoscopic clipping. Hemoglobin drops from 13.8 to 8.9. Billing submitted code: K27.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"K27.9\"\n  ],\n  \"correct_codes\": [\n    \"K26.0\"\n  ],\n  \"justification\": \"The endoscopy report confirms an actively bleeding duodenal ulcer with a documented significant hemoglobin drop. The submitted K27.9 (unspecified peptic ulcer) is non-specific as to site. The correct code is K26.0 (Acute duodenal ulcer with hemorrhage).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 38yo male reports frequent heartburn and regurgitation after meals for several months. Physician diagnoses gastroesophageal reflux disease and starts a proton pump inhibitor. Billing submitted code: K21.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"K21.9\"\n  ],\n  \"correct_codes\": [\n    \"K21.9\"\n  ],\n  \"justification\": \"The submitted code K21.9 (Gastro-esophageal reflux disease without esophagitis) matches the documented symptoms, as no endoscopic evidence of esophagitis is noted in the chart.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 61yo female with a history of invasive ductal carcinoma of the right breast presents with new lower back pain. Bone scan and biopsy confirm metastatic involvement of the lumbar vertebrae. Billing submitted code: C50.911."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"C50.911\"\n  ],\n  \"correct_codes\": [\n    \"C50.911\",\n    \"C79.51\"\n  ],\n  \"justification\": \"The bone scan and biopsy confirm a new, distinct metastatic site to the bone, which must be separately reported. Submitting only the primary breast cancer code C50.911 omits this. The correct coding requires the addition of C79.51 (Secondary malignant neoplasm of bone).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 66yo male undergoes colonoscopy after positive fecal occult blood test. Biopsy of a mass in the sigmoid colon confirms adenocarcinoma. Physician documents malignant neoplasm of the sigmoid colon. Billing submitted code: C18.7."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"C18.7\"\n  ],\n  \"correct_codes\": [\n    \"C18.7\"\n  ],\n  \"justification\": \"The submitted code C18.7 (Malignant neoplasm of sigmoid colon) is directly supported by the biopsy-confirmed site of the tumor.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 74yo male presents with sudden onset left-sided weakness and facial droop. CT confirms an acute ischemic stroke in the right MCA territory. On exam, the physician documents resulting left-sided hemiparesis. Billing submitted code: I63.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"I63.9\"\n  ],\n  \"correct_codes\": [\n    \"I63.9\",\n    \"G81.91\"\n  ],\n  \"justification\": \"The neurological exam documents a specific residual deficit, left-sided hemiparesis, resulting from the stroke. Submitting only I63.9 omits this clinically significant finding. The correct coding requires the addition of G81.91 (Hemiplegia and hemiparesis affecting unspecified side).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 27yo female reports recurrent throbbing unilateral headaches with nausea and photophobia, occurring without any preceding visual or sensory aura. Physician diagnoses migraine without aura. Billing submitted code: G43.009."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"G43.009\"\n  ],\n  \"correct_codes\": [\n    \"G43.009\"\n  ],\n  \"justification\": \"The submitted code G43.009 (Migraine without aura, not intractable, without status migrainosus) accurately reflects the documented absence of aura and lack of intractability.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 31yo female at 34 weeks gestation presents with a blood pressure of 168/112, headache, and 3+ proteinuria on urinalysis. Physician diagnoses severe preeclampsia in the third trimester. Billing submitted code: O13."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"O13\"\n  ],\n  \"correct_codes\": [\n    \"O14.13\"\n  ],\n  \"justification\": \"The documented findings of significant proteinuria alongside markedly elevated blood pressure meet criteria for severe preeclampsia, not gestational hypertension without proteinuria. The submitted O13 is incorrect. The correct code is O14.13 (Severe pre-eclampsia, third trimester).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 26yo female at 39 weeks gestation is admitted in active labor and proceeds to an uncomplicated spontaneous vaginal delivery of a healthy infant. Billing submitted code: O80."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"O80\"\n  ],\n  \"correct_codes\": [\n    \"O80\"\n  ],\n  \"justification\": \"The submitted code O80 (Encounter for full-term uncomplicated delivery) is appropriate given the documented absence of any labor or delivery complications.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 52yo male has a documented history of two prior depressive episodes and now presents with a third episode marked by anhedonia, insomnia, and passive suicidal ideation without a plan. Physician diagnoses recurrent major depressive disorder, severe, without psychotic features. Billing submitted code: F32.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"F32.9\"\n  ],\n  \"correct_codes\": [\n    \"F33.2\"\n  ],\n  \"justification\": \"The chart documents this as the patient's third depressive episode, meeting criteria for a recurrent disorder rather than a single episode. The submitted F32.9 (single episode, unspecified) is inaccurate. The correct code is F33.2 (Major depressive disorder, recurrent severe without psychotic features).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 35yo female reports six months of excessive, difficult-to-control worry about multiple areas of life, accompanied by muscle tension and sleep disturbance. Physician diagnoses generalized anxiety disorder. Billing submitted code: F41.1."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"F41.1\"\n  ],\n  \"correct_codes\": [\n    \"F41.1\"\n  ],\n  \"justification\": \"The submitted code F41.1 (Generalized anxiety disorder) is fully supported by the documented duration and pattern of symptoms.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 49yo male presents with a red, swollen, tender right lower leg. Exam reveals diffuse cellulitis with a distinct fluctuant, pus-filled pocket requiring incision and drainage, documented separately as a subcutaneous abscess. Billing submitted code: L03.115."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"L03.115\"\n  ],\n  \"correct_codes\": [\n    \"L03.115\",\n    \"L02.416\"\n  ],\n  \"justification\": \"The exam documents two distinct findings: diffuse cellulitis and a separate fluctuant abscess requiring incision and drainage. Submitting only the cellulitis code omits the abscess. The correct coding requires the addition of L02.416 (Cutaneous abscess of right lower limb).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 41yo male presents with well-demarcated, erythematous plaques with silvery scale on the elbows and knees. Physician diagnoses plaque-type psoriasis vulgaris. Billing submitted code: L40.0."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"L40.0\"\n  ],\n  \"correct_codes\": [\n    \"L40.0\"\n  ],\n  \"justification\": \"The submitted code L40.0 (Psoriasis vulgaris) accurately matches the documented clinical presentation and distribution of lesions.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 78yo male with known benign prostatic hyperplasia presents with an inability to void for 12 hours and suprapubic distension. A Foley catheter is placed, draining 900mL. Physician documents BPH with acute urinary retention. Billing submitted code: N40.0."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"N40.0\"\n  ],\n  \"correct_codes\": [\n    \"N40.1\",\n    \"R33.8\"\n  ],\n  \"justification\": \"The documentation specifies BPH complicated by lower urinary tract symptoms culminating in acute retention, requiring catheterization. The submitted N40.0 (BPH without LUTS) contradicts this. Correct coding requires N40.1 (BPH with LUTS) with the addition of R33.8 (Other retention of urine).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 44yo male presents with acute, colicky left flank pain radiating to the groin. CT confirms a 6mm calculus in the left proximal ureter. Physician diagnoses ureteral calculus. Billing submitted code: N20.1."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"N20.1\"\n  ],\n  \"correct_codes\": [\n    \"N20.1\"\n  ],\n  \"justification\": \"The submitted code N20.1 (Calculus of ureter) is directly supported by the CT findings localizing the stone to the ureter.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 53yo female reports six months of nasal congestion and facial pressure. Nasal endoscopy reveals chronic pansinusitis along with visible bilateral nasal polyps obstructing the middle meatus. Billing submitted code: J32.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"J32.9\"\n  ],\n  \"correct_codes\": [\n    \"J32.4\",\n    \"J33.9\"\n  ],\n  \"justification\": \"The endoscopic exam documents both chronic pansinusitis and a distinct, separately reportable finding of nasal polyps. The submitted unspecified code J32.9 captures neither finding accurately. The correct coding requires J32.4 (Chronic pansinusitis) with the addition of J33.9 (Nasal polyp, unspecified).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 12yo male presents with sore throat, fever, and erythematous tonsils without exudate. Rapid strep test is negative. Physician diagnoses acute pharyngitis of presumed viral origin. Billing submitted code: J02.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"J02.9\"\n  ],\n  \"correct_codes\": [\n    \"J02.9\"\n  ],\n  \"justification\": \"The submitted code J02.9 (Acute pharyngitis, unspecified) is appropriate given the negative strep test and lack of a confirmed specific organism.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 57yo male with long-standing Type 2 diabetes presents for a routine eye exam. Dilated fundus exam reveals proliferative diabetic retinopathy with neovascularization in the right eye. Billing submitted code: E11.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"E11.9\"\n  ],\n  \"correct_codes\": [\n    \"E11.359\"\n  ],\n  \"justification\": \"The dilated fundus exam documents a specific diabetic eye complication, proliferative retinopathy. The submitted E11.9 (diabetes without complications) directly contradicts this finding. The correct code is E11.359 (Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema, unspecified eye).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 70yo female reports gradual, painless vision loss over the past year. Slit-lamp exam reveals a dense nuclear sclerotic cataract in the left eye. Physician recommends surgical evaluation. Billing submitted code: H25.12."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"H25.12\"\n  ],\n  \"correct_codes\": [\n    \"H25.12\"\n  ],\n  \"justification\": \"The submitted code H25.12 (Age-related nuclear cataract, left eye) is directly supported by the slit-lamp exam findings and laterality documented in the chart.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 46yo female presents with symmetric pain and swelling in the metacarpophalangeal joints of both hands, wrists, and knees for over eight weeks. Rheumatoid factor and anti-CCP are positive. Physician diagnoses rheumatoid arthritis involving multiple joints. Billing submitted code: M06.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"M06.9\"\n  ],\n  \"correct_codes\": [\n    \"M05.79\"\n  ],\n  \"justification\": \"The lab findings confirm seropositivity and the exam documents symmetric involvement of multiple named joint groups. The submitted M06.9 (unspecified RA) fails to capture the seropositive status or multi-site involvement. The correct code is M05.79 (Rheumatoid arthritis with rheumatoid factor of multiple sites without organ or systems involvement).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 60yo male presents with acute, severe pain and swelling of the right first metatarsophalangeal joint. Joint aspiration confirms monosodium urate crystals. Physician diagnoses an acute gout flare. Billing submitted code: M10.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"M10.9\"\n  ],\n  \"correct_codes\": [\n    \"M10.9\"\n  ],\n  \"justification\": \"The submitted code M10.9 (Gout, unspecified) is reasonable given the chart does not further classify the gout as idiopathic, lead-induced, drug-induced, or secondary to another condition.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 64yo male tests positive for COVID-19 by PCR and presents with fever, cough, and hypoxia. Chest X-ray confirms bilateral infiltrates consistent with pneumonia. Physician diagnoses COVID-19 pneumonia. Billing submitted code: U07.1."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"U07.1\"\n  ],\n  \"correct_codes\": [\n    \"U07.1\",\n    \"J12.82\"\n  ],\n  \"justification\": \"The chest X-ray and clinical presentation confirm a pneumonia manifestation of the COVID-19 infection, which must be separately captured. Submitting only U07.1 omits the pulmonary manifestation. The correct coding requires the addition of J12.82 (Pneumonia due to coronavirus disease 2019).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 29yo male, an avid hiker, presents with a bullseye-shaped rash and fatigue after a known tick bite. Serology confirms Lyme disease. Physician starts a course of doxycycline. Billing submitted code: A69.20."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"A69.20\"\n  ],\n  \"correct_codes\": [\n    \"A69.20\"\n  ],\n  \"justification\": \"The submitted code A69.20 (Lyme disease, unspecified) is supported by the confirmed serology and documented tick exposure, with no further organ-specific complication noted.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 52yo female presents with right upper quadrant pain, fever, and a positive Murphy's sign. Ultrasound confirms gallstones with gallbladder wall thickening and pericholecystic fluid. Physician diagnoses acute cholecystitis with cholelithiasis. Billing submitted code: K80.20."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"K80.20\"\n  ],\n  \"correct_codes\": [\n    \"K80.00\"\n  ],\n  \"justification\": \"The ultrasound and clinical signs confirm active acute inflammation of the gallbladder, not merely asymptomatic stones. The submitted K80.20 (calculus of gallbladder without cholecystitis) contradicts this. The correct code is K80.00 (Calculus of gallbladder with acute cholecystitis, without obstruction).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 45yo male presents with a reducible bulge in the right groin that worsens with straining. Physician diagnoses an uncomplicated right inguinal hernia and schedules elective repair. Billing submitted code: K40.90."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"K40.90\"\n  ],\n  \"correct_codes\": [\n    \"K40.90\"\n  ],\n  \"justification\": \"The submitted code K40.90 (Unilateral inguinal hernia, without obstruction or gangrene, not specified as recurrent) matches the documented reducible, uncomplicated presentation.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 84yo female with known Alzheimer's dementia is brought in by family due to new agitation, physical aggression toward caregivers, and wandering behavior. Physician documents dementia with associated behavioral disturbance. Billing submitted code: F03.90."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"F03.90\"\n  ],\n  \"correct_codes\": [\n    \"F03.91\"\n  ],\n  \"justification\": \"The chart explicitly documents new agitation and aggression as behavioral symptoms accompanying the dementia. The submitted F03.90 (dementia without behavioral disturbance) contradicts this. The correct code is F03.91 (Unspecified dementia with behavioral disturbance).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 79yo female undergoes a routine DEXA scan showing a T-score of -3.0. No history of fragility fracture. Physician diagnoses osteoporosis without current pathological fracture. Billing submitted code: M81.0."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"M81.0\"\n  ],\n  \"correct_codes\": [\n    \"M81.0\"\n  ],\n  \"justification\": \"The submitted code M81.0 (Age-related osteoporosis without current pathological fracture) is supported by the DEXA findings and the documented absence of any fracture.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 82yo male with known chronic systolic heart failure presents with worsening dyspnea, bilateral leg edema, and elevated BNP. Physician documents an acute exacerbation of chronic systolic heart failure. Billing submitted code: I50.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"I50.9\"\n  ],\n  \"correct_codes\": [\n    \"I50.23\"\n  ],\n  \"justification\": \"The documentation specifies both the chronicity and systolic nature of the heart failure along with an acute decompensation. The unspecified code I50.9 fails to capture this detail. The correct code is I50.23 (Acute on chronic systolic (congestive) heart failure).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 65yo male reports exertional chest tightness relieved by rest, occurring predictably with physical activity for the past several months. Stress test is positive. Physician diagnoses stable angina. Billing submitted code: I20.9."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"I20.9\"\n  ],\n  \"correct_codes\": [\n    \"I20.9\"\n  ],\n  \"justification\": \"The submitted code I20.9 (Angina pectoris, unspecified) matches the documented pattern of stable, exertional symptoms without further classification in the chart.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 47yo male presents with low back pain radiating down the left leg to the foot, with numbness and a positive straight-leg raise test. MRI confirms an L5-S1 disc herniation compressing the adjacent nerve root, consistent with lumbar radiculopathy. Billing submitted code: M54.5."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"M54.5\"\n  ],\n  \"correct_codes\": [\n    \"M51.26\"\n  ],\n  \"justification\": \"The MRI and exam findings confirm a disc herniation with nerve root compression causing radiculopathy, a far more specific diagnosis than generic low back pain. The submitted M54.5 undercodes the encounter. The correct code is M51.26 (Other intervertebral disc displacement, lumbar region).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 55yo male presents with shoulder pain and weakness with overhead activity. MRI confirms a full-thickness tear of the supraspinatus tendon. Physician diagnoses a rotator cuff tear. Billing submitted code: M75.100."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"M75.100\"\n  ],\n  \"correct_codes\": [\n    \"M75.100\"\n  ],\n  \"justification\": \"The submitted code M75.100 (Unspecified rotator cuff tear or rupture of unspecified shoulder, not specified as traumatic) is consistent with the MRI-confirmed tear and the chart's lack of documented traumatic mechanism.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 9yo female with a history of asthma presents in significant respiratory distress with accessory muscle use, oxygen saturation of 89%, and minimal air movement on auscultation. Physician documents a severe asthma exacerbation requiring continuous nebulizer treatment and admission. Billing submitted code: J45.20."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"J45.20\"\n  ],\n  \"correct_codes\": [\n    \"J45.41\"\n  ],\n  \"justification\": \"The documented oxygen desaturation, accessory muscle use, and need for admission reflect a severe, not mild intermittent, presentation. The submitted J45.20 significantly undercodes the acuity. Based on the exacerbation severity described, the correct code is J45.41 (Moderate persistent asthma with (acute) exacerbation).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 6yo male presents for a scheduled well-child visit. Growth parameters are within normal limits and no acute concerns are identified. Physician documents a routine health maintenance exam. Billing submitted code: Z00.129."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"Z00.129\"\n  ],\n  \"correct_codes\": [\n    \"Z00.129\"\n  ],\n  \"justification\": \"The submitted code Z00.129 (Encounter for routine child health examination without abnormal findings) accurately reflects the documented unremarkable well-child visit.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 14yo male develops sudden facial swelling, hives, and difficulty breathing within minutes of eating shrimp at a restaurant. He is treated emergently with epinephrine. Physician documents anaphylaxis due to shellfish ingestion. Billing submitted code: T78.00XA."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"T78.00XA\"\n  ],\n  \"correct_codes\": [\n    \"T78.07XA\"\n  ],\n  \"justification\": \"The chart explicitly identifies shellfish as the causative food allergen for the anaphylactic reaction. The submitted unspecified code T78.00XA fails to capture this known trigger. The correct code is T78.07XA (Anaphylactic reaction due to shellfish, initial encounter).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 8yo female falls off a bicycle onto an outstretched hand. X-ray confirms a displaced fracture of the distal radius of the left wrist. A closed reduction is performed in the ED. Billing submitted code: S52.531A."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"S52.531A\"\n  ],\n  \"correct_codes\": [\n    \"S52.531A\"\n  ],\n  \"justification\": \"The submitted code S52.531A (Displaced fracture of distal radius, left arm, initial encounter) is directly supported by the X-ray findings and documented laterality.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 39yo female with known Graves' disease presents with fever, tachycardia to 160, agitation, and altered mental status following a recent infection. Physician diagnoses thyroid storm secondary to hyperthyroidism. Billing submitted code: E05.90."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"submitted_codes\": [\n    \"E05.90\"\n  ],\n  \"correct_codes\": [\n    \"E05.91\"\n  ],\n  \"justification\": \"The documented fever, severe tachycardia, and altered mental status meet criteria for a thyrotoxic crisis. The submitted E05.90 (thyrotoxicosis without thyroid storm) directly contradicts the physician's diagnosis. The correct code is E05.91 (Thyrotoxicosis, unspecified, with thyroid storm).\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor. Analyze the clinical encounter notes, match the correct ICD-10 diagnosis codes, and highlight billing code variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 68yo male, a former smoker, presents with a persistent cough and weight loss. CT-guided biopsy of a right upper lobe mass confirms non-small cell lung cancer. Physician documents malignant neoplasm of the upper lobe of the right lung. Billing submitted code: C34.11."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"submitted_codes\": [\n    \"C34.11\"\n  ],\n  \"correct_codes\": [\n    \"C34.11\"\n  ],\n  \"justification\": \"The submitted code C34.11 (Malignant neoplasm of upper lobe, right bronchus or lung) is directly supported by the biopsy-confirmed location of the tumor.\"\n}"
+      }
+    ]
+  },
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 42yo female undergoes a laparoscopic cholecystectomy for symptomatic cholelithiasis. The operative report shows a single laparoscopic approach used both to explore the abdomen and remove the gallbladder; no separate diagnostic procedure or additional pathology was addressed. Billing submitted code(s): 47562, 49320."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"47562\",\n    \"49320\"\n  ],\n  \"correct_codes\": [\n    \"47562\"\n  ],\n  \"justification\": \"NCCI bundles diagnostic laparoscopy 49320 into the definitive laparoscopic cholecystectomy 47562 when performed through the same access in the same session. No separately documented distinct procedure or anatomic site is present to support unbundling, so 49320 is not separately billable.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 38yo male undergoes arthroscopic partial medial meniscectomy of the right knee for a confirmed meniscal tear. The operative report documents only the definitive repair procedure, with no separate diagnostic arthroscopy billed. Billing submitted code(s): 29881."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"29881\"\n  ],\n  \"correct_codes\": [\n    \"29881\"\n  ],\n  \"justification\": \"Submitting only the definitive surgical arthroscopy code is correct; the diagnostic component is inherently bundled into the surgical procedure and appropriately not billed separately.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 58yo male is 10 days post-op from an open inguinal hernia repair (90-day global period). He returns for a routine incision check and reports the wound is healing well with no new complaints. Billing submits a separate E/M visit in addition to the global surgical package. Billing submitted code(s): 99213, 49505."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99213\",\n    \"49505\"\n  ],\n  \"correct_codes\": [\n    \"49505\"\n  ],\n  \"justification\": \"Routine post-operative wound checks within the global surgical period are included in the global surgical package. Absent a new, unrelated problem, a separate E/M service is not billable during this encounter.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: 58yo male, 10 days post-op from an open inguinal hernia repair (90-day global period), presents with a new complaint of a painful, swollen ankle after twisting it at home, unrelated to the hernia surgery. The physician documents a separate evaluation and management of the ankle injury and bills an E/M service with modifier 24. Billing submitted code(s): 99213-24."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99213-24\"\n  ],\n  \"correct_codes\": [\n    \"99213-24\"\n  ],\n  \"justification\": \"Correct - modifier 24 appropriately identifies an E/M service unrelated to the original surgery furnished during the global period, supported by a distinct documented complaint.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Physician performs an in-office excision of a benign skin lesion and separately bills a surgical tray supply code in addition to the excision procedure. Billing submitted code(s): 11401, A4550."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"11401\",\n    \"A4550\"\n  ],\n  \"correct_codes\": [\n    \"11401\"\n  ],\n  \"justification\": \"Surgical trays and incidental supplies are considered part of the procedure they support and are bundled into the primary procedure code under standard payer policy; they are not separately reimbursable.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A surgeon performs a total knee arthroplasty; a separate anesthesiologist independently provides and documents general anesthesia for the case and bills the anesthesia code under their own NPI. Billing submitted code(s): 01402."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"01402\"\n  ],\n  \"correct_codes\": [\n    \"01402\"\n  ],\n  \"justification\": \"Correct - anesthesia services furnished and documented by a distinct anesthesia provider are separately billable and appropriately reported apart from the surgeon's procedural code.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A blood specimen is drawn in-office and processed using the practice's own in-house lab equipment to run a comprehensive metabolic panel. The practice separately bills a specimen handling and conveyance fee in addition to the panel. Billing submitted code(s): 99000, 80053."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99000\",\n    \"80053\"\n  ],\n  \"correct_codes\": [\n    \"80053\"\n  ],\n  \"justification\": \"CPT 99000 (handling/conveyance of a specimen for transfer from the office to an outside laboratory) is not payable when the specimen is processed in-house rather than transferred elsewhere; only the panel itself is billable.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A blood specimen for a lipid panel is drawn in-office and packaged for transport to an outside reference laboratory for processing. The practice bills the handling/conveyance code in addition to the venipuncture; the panel itself is billed separately by the reference lab. Billing submitted code(s): 99000, 36415."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99000\",\n    \"36415\"\n  ],\n  \"correct_codes\": [\n    \"99000\",\n    \"36415\"\n  ],\n  \"justification\": \"Correct - the handling/conveyance fee is appropriately billable when a specimen is transferred to an outside laboratory, separate from the venipuncture code.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A dermatologist performs a shave biopsy of a suspicious lesion, immediately reviews it as concerning, and proceeds within the same encounter to completely excise the same lesion. Both the biopsy and the excision of the same lesion are billed. Billing submitted code(s): 11102, 11401."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"11102\",\n    \"11401\"\n  ],\n  \"correct_codes\": [\n    \"11401\"\n  ],\n  \"justification\": \"When a biopsy of a lesion is immediately followed by excision of that same lesion in the same session, the biopsy is considered part of the excision procedure and is not separately billable.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A dermatologist performs a shave biopsy of a suspicious lesion on the patient's back and, in the same encounter, excises a separate, unrelated benign lesion on the patient's forearm. Both procedures are billed, with modifier 59 appended to the biopsy code to indicate a distinct anatomic site. Billing submitted code(s): 11102-59, 11401."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"11102-59\",\n    \"11401\"\n  ],\n  \"correct_codes\": [\n    \"11102-59\",\n    \"11401\"\n  ],\n  \"justification\": \"Correct - modifier 59 appropriately identifies the biopsy as a distinct procedural service performed at a separate anatomic site from the excision, supporting separate reimbursement.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient receives bilateral knee joint injections of corticosteroid for osteoarthritis. Billing submits the injection code twice, each with modifier 50 appended. Billing submitted code(s): 20610-50, 20610-50."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"20610-50\",\n    \"20610-50\"\n  ],\n  \"correct_codes\": [\n    \"20610-50\"\n  ],\n  \"justification\": \"Modifier 50 indicates a bilateral procedure performed in a single session and should be appended once, with the code reported on a single line per standard billing convention; duplicating both the code and the modifier double-bills the bilateral service.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient receives bilateral knee joint injections of corticosteroid. Billing reports the injection code a single time with modifier 50 appended to indicate bilateral performance. Billing submitted code(s): 20610-50."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"20610-50\"\n  ],\n  \"correct_codes\": [\n    \"20610-50\"\n  ],\n  \"justification\": \"Correct - single-line reporting with modifier 50 appropriately reflects the bilateral nature of the service.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: During a diagnostic colonoscopy, the physician separately biopsies two lesions in anatomically distinct segments of the colon that are documented as clinically unrelated findings requiring separate pathology. No modifier is appended to differentiate the services from the standard bundled edit pair. Billing submitted code(s): 45380, 45385."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"45380\",\n    \"45385\"\n  ],\n  \"correct_codes\": [\n    \"45380-59\",\n    \"45385\"\n  ],\n  \"justification\": \"Without modifier 59 (or a more specific X-modifier) to indicate the biopsy addressed a distinct, separately documented lesion from the snare polypectomy, the payer's NCCI edit will bundle the services despite the distinct-site documentation supporting unbundling.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: An established patient presents for a scheduled follow-up of hypertension management and, during the same visit, reports a new complaint of a painful ingrown toenail. The physician performs a full separate evaluation of the hypertension and additionally performs a partial toenail avulsion. Both the E/M visit with modifier 25 and the procedure are billed. Billing submitted code(s): 99214-25, 11730."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"99214-25\",\n    \"11730\"\n  ],\n  \"correct_codes\": [\n    \"99214-25\",\n    \"11730\"\n  ],\n  \"justification\": \"Correct - the chart documents a significant, separately identifiable E/M service distinct from the minor procedure performed the same day, supporting modifier 25.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient presents specifically for a scheduled wart removal. The physician performs destruction of the wart with no other complaint addressed or separate evaluation documented. Billing submits an E/M code with modifier 25 in addition to the destruction code. Billing submitted code(s): 99213-25, 17110."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"99213-25\",\n    \"17110\"\n  ],\n  \"correct_codes\": [\n    \"17110\"\n  ],\n  \"justification\": \"Modifier 25 requires a significant, separately identifiable E/M service beyond the work inherent to the minor procedure; the chart documents no additional complaint or separate evaluation, so the E/M service is not separately billable.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: The operative report clearly documents an arthroscopic rotator cuff repair performed on the patient's right shoulder. Billing submits the procedure code with modifier LT (left side). Billing submitted code(s): 29827-LT."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"29827-LT\"\n  ],\n  \"correct_codes\": [\n    \"29827-RT\"\n  ],\n  \"justification\": \"The operative documentation specifies the right shoulder as the surgical site; the submitted LT modifier contradicts the chart and must be corrected to RT to accurately reflect laterality.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: The operative report documents an arthroscopic rotator cuff repair performed on the patient's right shoulder. Billing submits the procedure code with modifier RT. Billing submitted code(s): 29827-RT."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"29827-RT\"\n  ],\n  \"correct_codes\": [\n    \"29827-RT\"\n  ],\n  \"justification\": \"Correct - the RT modifier accurately matches the documented surgical laterality.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient undergoes a chest X-ray in the morning to assess a suspected pneumothorax, then a follow-up chest X-ray of the same view is performed later the same day by the same radiologist to confirm resolution after a chest tube intervention. Both X-rays are billed with the identical CPT code and no modifier. Billing submitted code(s): 71046, 71046."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"71046\",\n    \"71046\"\n  ],\n  \"correct_codes\": [\n    \"71046\",\n    \"71046-76\"\n  ],\n  \"justification\": \"Repeating the same imaging study by the same physician on the same day requires modifier 76 (repeat procedure by same physician) on the second occurrence to indicate a medically necessary repeat study rather than a duplicate claim.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A patient in the ED has an initial troponin drawn on arrival, followed by a clinically indicated repeat troponin three hours later per acute coronary syndrome protocol to trend the value. Both troponin tests are billed, with modifier 91 appended to the second draw. Billing submitted code(s): 84484, 84484-91."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"84484\",\n    \"84484-91\"\n  ],\n  \"correct_codes\": [\n    \"84484\",\n    \"84484-91\"\n  ],\n  \"justification\": \"Correct - modifier 91 appropriately indicates a repeat clinical laboratory test performed on the same day to obtain a subsequent, medically necessary result rather than a duplicate claim.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: The operative note documents that a single spine surgeon performed the entirety of a complex spinal fusion procedure without any second surgeon present or participating. Billing submits the procedure code with modifier 62 (two surgeons). Billing submitted code(s): 22633-62."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"22633-62\"\n  ],\n  \"correct_codes\": [\n    \"22633\"\n  ],\n  \"justification\": \"Modifier 62 requires two surgeons of different skill sets each performing a distinct part of the procedure, with each documenting a separate operative note. The chart confirms only a single surgeon performed the entire case, so the modifier is unsupported and must be removed.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient underwent a lumbar spine MRI six weeks ago for chronic low back pain, which was unremarkable. Patient returns today with the same unchanged chronic back pain, no new neurological symptoms, and no new trauma. Physician orders and bills a repeat lumbar MRI. Billing submitted code(s): 72148."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"72148\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Absent any new or worsening symptoms, new trauma, or a documented change in clinical status since the recent unremarkable MRI, the repeat imaging does not meet medical necessity criteria and is not supported for billing at this time.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient underwent a lumbar spine MRI six weeks ago for chronic back pain, which was unremarkable. Patient now returns with new-onset numbness and weakness in the left leg along with worsening pain radiating below the knee, a distinct change from the prior presentation. Physician orders and bills a repeat lumbar MRI. Billing submitted code(s): 72148."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"72148\"\n  ],\n  \"correct_codes\": [\n    \"72148\"\n  ],\n  \"justification\": \"The newly documented neurological deficit and symptom change represent a distinct clinical development from the prior unremarkable study, supporting medical necessity for repeat imaging.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 45yo asymptomatic patient with no personal or family history of colorectal disease presents for a routine screening colonoscopy per age-based guidelines. No polyps or abnormal findings are noted. Billing submits the diagnostic colonoscopy code rather than the screening-specific code. Billing submitted code(s): 45378."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"45378\"\n  ],\n  \"correct_codes\": [\n    \"G0121\"\n  ],\n  \"justification\": \"Documentation confirms an average-risk, asymptomatic patient presenting for a routine, guideline-based screening exam with no diagnostic indication. The encounter should be billed as a screening service (e.g., G0121) rather than a diagnostic procedure, to accurately reflect medical necessity and avoid inappropriate patient cost-sharing.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 58yo patient presents with three months of intermittent rectal bleeding and unexplained weight loss. Physician performs a diagnostic colonoscopy to evaluate these symptoms; biopsies are taken of a suspicious area. Billing submitted code(s): 45380."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"45380\"\n  ],\n  \"correct_codes\": [\n    \"45380\"\n  ],\n  \"justification\": \"Correct - the documented symptoms of rectal bleeding and weight loss establish clear diagnostic indication and medical necessity for the procedure, appropriately distinguishing it from a screening exam.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 62yo patient requests upper eyelid surgery for cosmetic improvement of 'tired-looking' eyes. No visual field testing is performed and the chart documents no functional visual impairment or obstruction of vision. Physician bills the procedure as a medically necessary blepharoplasty. Billing submitted code(s): 15822."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"15822\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Absent objective visual field testing demonstrating functional visual obstruction from redundant eyelid skin, the documentation supports a cosmetic indication rather than medical necessity; the procedure does not meet criteria for coverage as billed.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 68yo patient reports difficulty with peripheral vision, particularly while driving. Formal visual field testing demonstrates significant superior field obstruction correlated with severe dermatochalasis of the upper eyelids. Physician bills a medically necessary upper eyelid blepharoplasty. Billing submitted code(s): 15822."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"15822\"\n  ],\n  \"correct_codes\": [\n    \"15822\"\n  ],\n  \"justification\": \"Correct - documented objective visual field testing demonstrating functional impairment supports medical necessity for the procedure as billed.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient already received and was billed for an annual preventive medicine exam four months ago. Patient returns today for another comprehensive preventive visit and it is billed again as a routine annual exam. Billing submitted code(s): 99396."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"99396\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Preventive/annual exam benefits are generally limited to once per benefit period (typically 12 months); a second preventive exam billed only four months after the prior one does not meet frequency-based medical necessity criteria for payment as a routine annual visit.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient presents for their annual preventive medicine exam, with the chart confirming their last preventive visit was performed approximately 13 months ago. Billing submitted code(s): 99396."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"99396\"\n  ],\n  \"correct_codes\": [\n    \"99396\"\n  ],\n  \"justification\": \"Correct - the visit falls appropriately outside the standard 12-month benefit period since the prior exam, supporting coverage of the routine annual visit.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 28yo patient presents with a mild, intermittent tension-type headache for two days, no red-flag symptoms such as neurological deficit, trauma, sudden severe onset, or fever, and a normal neurological exam. Physician orders and bills a head CT scan. Billing submitted code(s): 70450."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"70450\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Current evidence-based imaging guidelines do not support CT imaging for uncomplicated headache in the absence of red-flag features such as neurological deficits, trauma, or a sudden thunderclap onset; the documented presentation does not establish medical necessity for advanced imaging.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A 45yo patient presents with the worst headache of their life, of sudden thunderclap onset, associated with neck stiffness and photophobia. Physician orders and bills an emergent head CT scan to rule out subarachnoid hemorrhage. Billing submitted code(s): 70450."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"70450\"\n  ],\n  \"correct_codes\": [\n    \"70450\"\n  ],\n  \"justification\": \"Correct - the documented thunderclap onset and associated red-flag symptoms meet established clinical criteria supporting emergent CT imaging for medical necessity.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician excises a benign lesion on the patient's scalp and a separate benign lesion on the patient's back during the same encounter. Both excision codes are billed, with modifier 59 appended to the second, lower-valued code to indicate a distinct anatomic site. Billing submitted code(s): 11401, 11402-59."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"11401\",\n    \"11402-59\"\n  ],\n  \"correct_codes\": [\n    \"11401\",\n    \"11402-59\"\n  ],\n  \"justification\": \"Correct - modifier 59 appropriately distinguishes the second excision as a distinct procedural service performed at a separate anatomic site.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician provides 45 minutes of critical care to a patient in respiratory failure and bills the critical care code. The same physician separately bills for pulse oximetry interpretation performed during that same critical care encounter. Billing submitted code(s): 99291, 94760."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99291\",\n    \"94760\"\n  ],\n  \"correct_codes\": [\n    \"99291\"\n  ],\n  \"justification\": \"Pulse oximetry is considered a bundled component of critical care services per CPT guidance and is not separately reportable when performed by the physician providing the critical care during that same encounter.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician provides 50 minutes of critical care to a patient in septic shock and bills the critical care code. During the same encounter, the physician also places a central venous catheter, documenting it as a separately performed procedure. Billing submitted code(s): 99291, 36556."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"99291\",\n    \"36556\"\n  ],\n  \"correct_codes\": [\n    \"99291\",\n    \"36556\"\n  ],\n  \"justification\": \"Correct - central venous catheter placement is a separately reportable procedure under CPT critical care guidelines, distinct from the bundled ancillary services, and is appropriately billed in addition to the critical care code.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs a primary spinal fusion procedure along with a listed CPT add-on code that, by definition, is always performed in conjunction with a primary procedure. Billing appends modifier 51 (multiple procedures) to the add-on code. Billing submitted code(s): 22630, 22632-51."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"22630\",\n    \"22632-51\"\n  ],\n  \"correct_codes\": [\n    \"22630\",\n    \"22632\"\n  ],\n  \"justification\": \"Modifier 51 is not applicable to add-on codes, which are inherently exempt from multiple-procedure reduction rules by CPT definition; the modifier should be removed from the add-on code.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs two distinct, unrelated surgical procedures during the same operative session: a primary hernia repair and a secondary, unrelated procedure to remove a lipoma. Billing lists the primary procedure first and appends modifier 51 to the secondary procedure code. Billing submitted code(s): 49505, 11406-51."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"49505\",\n    \"11406-51\"\n  ],\n  \"correct_codes\": [\n    \"49505\",\n    \"11406-51\"\n  ],\n  \"justification\": \"Correct - modifier 51 appropriately indicates that a second, distinct procedure was performed in the same session, supporting standard multiple-procedure payment reduction rules.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs a standard, uncomplicated laparoscopic appendectomy of routine duration and difficulty. Billing appends modifier 22 (increased procedural services) to the code, citing general 'difficulty' without further detail. Billing submitted code(s): 44970-22."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"44970-22\"\n  ],\n  \"correct_codes\": [\n    \"44970\"\n  ],\n  \"justification\": \"Modifier 22 requires clear, specific documentation of substantially increased work, such as excessive blood loss, unusual findings, or significantly extended operative time compared to the typical case; the chart lacks this specific supporting detail, so the modifier is unsupported.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs a laparoscopic appendectomy complicated by dense adhesions from prior abdominal surgery, requiring significant additional lysis of adhesions and extending the operative time by over 90 minutes beyond typical. The operative note documents this in detail. Billing appends modifier 22. Billing submitted code(s): 44970-22."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"44970-22\"\n  ],\n  \"correct_codes\": [\n    \"44970-22\"\n  ],\n  \"justification\": \"Correct - the operative note provides specific, quantifiable documentation of substantially increased complexity and operative time, supporting the use of modifier 22.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient presents for a routine physical with no complaints of numbness, tingling, weakness, or pain in the extremities. Physician orders and bills a nerve conduction study and electromyography as part of the routine visit. Billing submitted code(s): 95909, 95886."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"95909\",\n    \"95886\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Absent any documented neurological symptoms such as numbness, weakness, or radicular pain, there is no clinical indication supporting the medical necessity of electrodiagnostic testing.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient presents with several weeks of progressive numbness and tingling in the thumb, index, and middle fingers, worse at night, with a positive Tinel's sign on exam. Physician orders and bills nerve conduction studies and EMG to evaluate for suspected carpal tunnel syndrome. Billing submitted code(s): 95909, 95886."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"95909\",\n    \"95886\"\n  ],\n  \"correct_codes\": [\n    \"95909\",\n    \"95886\"\n  ],\n  \"justification\": \"Correct - the documented sensory symptoms and positive provocative exam finding establish clear clinical indication supporting the medical necessity of electrodiagnostic testing.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient has completed 20 sessions of physical therapy for a shoulder injury. Documentation over the last 5 sessions shows no further improvement in range of motion or function, and no updated treatment plan or new functional goals are documented. Billing continues to submit the same therapy code for additional sessions. Billing submitted code(s): 97110."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"97110\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Continued therapy without documented functional progress or an updated, medically justified plan of care does not meet ongoing medical necessity criteria; further sessions are not supported absent revised goals or evidence of continued benefit.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient has completed 10 sessions of physical therapy for a shoulder injury, with documentation showing measurable improvement in range of motion and functional strength each session, alongside an updated plan of care with revised goals for continued progress. Billing submitted code(s): 97110."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"97110\"\n  ],\n  \"correct_codes\": [\n    \"97110\"\n  ],\n  \"justification\": \"Correct - documented measurable functional improvement and an updated plan of care support continued medical necessity for ongoing physical therapy services.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs a total knee arthroplasty and separately bills for routine intraoperative fluoroscopic guidance that is a standard, inherent component of the primary procedure. Billing appends modifier 59 to the fluoroscopy code to bypass the bundling edit. Billing submitted code(s): 27447, 77002-59."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"27447\",\n    \"77002-59\"\n  ],\n  \"correct_codes\": [\n    \"27447\"\n  ],\n  \"justification\": \"Fluoroscopic guidance is an inherent, bundled component of this procedure per NCCI edits; appending modifier 59 without a true, separately documented distinct service to justify unbundling is inappropriate and does not support separate reimbursement.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A physician performs a total knee arthroplasty and, later the same day, performs a separate, medically necessary fluoroscopic-guided joint aspiration on the patient's contralateral, unrelated ankle for a distinct clinical concern, documented as a separate encounter. Billing submitted code(s): 27447, 20605-59."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"27447\",\n    \"20605-59\"\n  ],\n  \"correct_codes\": [\n    \"27447\",\n    \"20605-59\"\n  ],\n  \"justification\": \"Correct - the aspiration procedure addresses a distinct, unrelated anatomic site and clinical indication, separately documented, supporting modifier 59 and separate reimbursement.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A radiologist both performs and interprets a diagnostic X-ray in their own office using owned equipment. Billing submits the single global code without splitting into professional and technical components, since the same entity performed and owns both components of the service. Billing submitted code(s): 71046."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"71046\"\n  ],\n  \"correct_codes\": [\n    \"71046\"\n  ],\n  \"justification\": \"Correct - when the same provider owns the equipment and performs both the technical and professional components, the global code is properly billed once without TC/26 splitting.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A hospital-employed radiologist interprets a diagnostic X-ray performed using hospital-owned equipment. The hospital bills the technical component with modifier TC, and the radiologist separately bills the professional component with modifier 26. Billing submitted code(s): 71046-TC, 71046-26."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"71046-TC\",\n    \"71046-26\"\n  ],\n  \"correct_codes\": [\n    \"71046-TC\",\n    \"71046-26\"\n  ],\n  \"justification\": \"Correct - splitting the technical and professional components between the facility that owns the equipment and the interpreting physician accurately reflects the distinct entities performing each component of the service.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient requests a power wheelchair citing general difficulty walking long distances outdoors. The chart does not document any inability to perform mobility-related activities of daily living within the home, nor any failed trial of a cane, walker, or manual wheelchair. Physician bills for a power wheelchair. Billing submitted code(s): K0823."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"K0823\"\n  ],\n  \"correct_codes\": [],\n  \"justification\": \"Coverage criteria for power mobility devices require documentation of a significant mobility limitation impairing activities of daily living within the home, along with evidence that lesser mobility aids are insufficient; the chart does not establish this, so medical necessity is not supported.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: Patient with advanced multiple sclerosis has documented inability to safely ambulate even short distances within the home despite a supervised trial of a manual wheelchair, which the patient cannot self-propel due to significant upper extremity weakness. Physician documents the failed trial and functional limitation, then bills for a power wheelchair. Billing submitted code(s): K0823."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"medical_necessity\",\n  \"submitted_codes\": [\n    \"K0823\"\n  ],\n  \"correct_codes\": [\n    \"K0823\"\n  ],\n  \"justification\": \"Correct - the documented failed trial of a lesser mobility device combined with a specific functional limitation within the home establishes medical necessity for the power wheelchair.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A gastroenterologist performs a diagnostic upper endoscopy and administers brief IV sedation lasting under 10 minutes, below the minimum time threshold required for separate reporting. Billing submits a moderate sedation code in addition to the endoscopy. Billing submitted code(s): 43235, 99152."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"43235\",\n    \"99152\"\n  ],\n  \"correct_codes\": [\n    \"43235\"\n  ],\n  \"justification\": \"Moderate sedation codes require a minimum intra-service time threshold to be separately reportable; the documented sedation duration falls below this threshold, so it is not separately billable and is considered bundled into the endoscopic procedure.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: A gastroenterologist performs a diagnostic upper endoscopy with moderate sedation administered and monitored by the same physician for a documented intra-service time of 22 minutes, meeting the threshold for separate reporting. Billing submits a moderate sedation code in addition to the endoscopy. Billing submitted code(s): 43235, 99152."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"APPROVED\",\n  \"variance_found\": false,\n  \"variance_type\": \"bundling\",\n  \"submitted_codes\": [\n    \"43235\",\n    \"99152\"\n  ],\n  \"correct_codes\": [\n    \"43235\",\n    \"99152\"\n  ],\n  \"justification\": \"Correct - the documented intra-service sedation time meets the minimum threshold required for moderate sedation to be separately reportable alongside the endoscopic procedure.\"\n}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a Revenue Cycle Management (RCM) compliance auditor specializing in CPT/HCPCS procedure coding. Analyze the clinical encounter and billing details, verify correct use of modifiers, NCCI bundling edits, and medical necessity documentation, and report compliance variances in valid JSON format only."
+      },
+      {
+        "role": "user",
+        "content": "Encounter Notes: The operative note documents that a planned laparoscopic cholecystectomy was aborted early due to dense adhesions after only the initial diagnostic exploration was completed, without proceeding to gallbladder removal. Billing submits the full, unmodified cholecystectomy code as if the complete procedure had been performed. Billing submitted code(s): 47562."
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"status\": \"REJECTED\",\n  \"variance_found\": true,\n  \"variance_type\": \"modifier\",\n  \"submitted_codes\": [\n    \"47562\"\n  ],\n  \"correct_codes\": [\n    \"47562-52\"\n  ],\n  \"justification\": \"The operative documentation confirms the procedure was significantly reduced in scope and did not reach completion; modifier 52 (reduced services) must be appended to accurately reflect that less than the full, planned procedure was performed.\"\n}"
+      }
+    ]
+  }
+]
