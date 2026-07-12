@@ -1,0 +1,360 @@
+{
+  "name": "Content Creator",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "26376f95-7f1b-4192-a8db-f5ee278d7fef"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "limit": 1,
+        "filters": {
+          "channelId": "UC_x5XG1OV2P6uZZ5FSM9Ttw"
+        },
+        "options": {}
+      },
+      "name": "YouTube",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        160,
+        32
+      ],
+      "id": "87ca12f5-337f-4f67-a557-25b791fc6274",
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "fMwEGYfCjG31woex",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        224
+      ],
+      "id": "d24d2257-28ac-4586-bc06-ccf085fa86a9",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jTAspcy6Gu4LLnAa",
+          "name": "Google Gemini(PaLM) Api account 11"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Wikipedia Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        560,
+        224
+      ],
+      "id": "5c7fc6c2-62c5-4e5d-871a-7e4f81b5715c"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10sNIRgpn6DbvLeAM17tMzJYNNrGtmcgoVBdNBO6MmJA",
+          "mode": "list",
+          "cachedResultName": "Video Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10sNIRgpn6DbvLeAM17tMzJYNNrGtmcgoVBdNBO6MmJA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10sNIRgpn6DbvLeAM17tMzJYNNrGtmcgoVBdNBO6MmJA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Video ID": "={{ $('YouTube').item.json.id.videoId || $('YouTube').item.json.id }}",
+            "Video Title": "={{ $('YouTube').item.json.snippet.title }}",
+            "Published Date": "={{ $('YouTube').item.json.snippet.publishedAt }}",
+            "Drive Document Link": "={{ \"https://docs.google.com/document/d/\" + $('Create a document').first().json.id + \"/edit\" }}",
+            "Date Processed": "={{ $now }}",
+            "Status": "Automated via AI Agent"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Video ID",
+              "displayName": "Video ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video Title",
+              "displayName": "Video Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Published Date",
+              "displayName": "Published Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Processed",
+              "displayName": "Date Processed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Drive Document Link",
+              "displayName": "Drive Document Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Google Sheets (Tracking)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1200,
+        256
+      ],
+      "id": "4a090c12-ad7c-4951-b219-c3e0ef11e821",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oUdI9VoKhbwUwz4P",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please process the following new video:\nTitle: {{ $json.snippet.title }}\nDescription: {{ $json.snippet.description }}",
+        "options": {
+          "systemMessage": "You are an expert technical content developer and AI trainer. Your objective is to transform the incoming video data provided by the user into high-quality, structured educational materials suitable for enterprise clients and technical learners.\n\nFollow these execution rules:\n1. Use your Wikipedia tool to briefly research the core technical concepts mentioned in the title to ensure your definitions and industry context are completely accurate.\n2. Draft a 400-word blog post structured like a mini-lesson or case study with clear learning objectives.\n3. Draft a professional LinkedIn post (under 200 words) summarizing the core architecture or business value.\n4. Draft 3 engaging Tweets highlighting key technical takeaways.\n5. FORMATTING RULE: You MUST output your final answer as raw, valid JSON only. Do not wrap the response in markdown blocks (e.g., no ```json). Do not include any conversational filler before or after the JSON object.\n\nUse this exact JSON schema for your final response:\n{\n  \"blog_post\": \"Your full blog post text here...\",\n  \"linkedin_post\": \"Your LinkedIn text here...\",\n  \"tweets\": \"1. [Tweet one] 2. [Tweet two] 3. [Tweet three]\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        384,
+        32
+      ],
+      "id": "59c9c7a4-f0b1-4756-8c26-37693e90cbdf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the raw text output from the AI Agent (defaulting to empty string if undefined)\nconst rawResponse = $input.first().json.output || \"\"; \n\n// Clean up markdown formatting if the LLM wraps the response in ```json ... ```\nconst cleanedText = rawResponse.replace(/```json/gi, '').replace(/```/g, '').trim();\n\n// Declare the variable without initializing it as an empty object\nlet parsedData;\n\ntry {\n  // Parse the string into a real JSON object\n  parsedData = JSON.parse(cleanedText);\n} catch (error) {\n  // Fallback if the LLM hallucinates the format during the live demo\n  parsedData = {\n    \"blog_post\": \"Error formatting output.\",\n    \"raw_response\": rawResponse\n  };\n}\n\n// Return the data wrapped in the exact structure n8n requires\nreturn [\n  {\n    json: Object.assign({}, parsedData)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        32
+      ],
+      "id": "076591e1-a53a-4804-96fc-bdadbc8dc09a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "folderId": "1evgI7O39Igg9XCF3kq-1N2xy5wlU8N81",
+        "title": "={{ $('YouTube').item.json.snippet.title }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        976,
+        32
+      ],
+      "id": "3722acfb-a98b-440b-b85f-c58400835e95",
+      "name": "Create a document",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "aqe6JGbbldjNGbuy",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ \"https://docs.google.com/document/d/\" + $('Create a document').first().json.id + \"/edit\" }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Code in JavaScript').item.json.blog_post }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -144
+      ],
+      "id": "c53e23bb-9e5f-49d2-b442-8f3c910f35ae",
+      "name": "Update a document",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "aqe6JGbbldjNGbuy",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets (Tracking)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets (Tracking)": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2ae5fad3-ecfc-41ae-b63b-52890820a441",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f461d39b74104424c1b7a783ffa1f358cdc97030d500ff915c71aefc6e661cde"
+  },
+  "nodeGroups": [],
+  "id": "IDtWxPBoP6OvYErp",
+  "tags": []
+}

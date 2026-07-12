@@ -1,0 +1,181 @@
+{
+  "name": "Support Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "sender": "usshaa48@gmail.com"
+        }
+      },
+      "id": "8372090e-fc89-48a4-829d-1ce23a718918",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        432
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4RuGff3EjUg9AMM5",
+          "name": "Gmail account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.From }}{{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are a Tier 2 Technical Customer Support Agent. Your job is to resolve customer inquiries accurately by querying our internal MySQL database.\n\nYou must follow a strict Plan and Execute framework. Do not guess information. \n\n### CORE DIRECTIVES\n1. PLAN: Break the customer's request into logical steps.\n2. VERIFY: You must use the MySQL tool to look up customer data before providing any status updates or refund amounts.\n3. EXECUTE: Follow your plan step-by-step.\n4. RESPOND: Provide a polite, direct answer to the customer using only the data retrieved.\n\n### REQUIRED FORMAT\nYou must format your internal processing exactly like this:\n\n**Execution Plan:**\nStep 1: [Identify exactly what SQL query needs to be run]\nStep 2: [Identify if math is needed using the Calculator tool]\nStep 3: [Draft the final customer email]\n\n**Execution:**\n[Begin tool calling loop]"
+        }
+      },
+      "id": "74214adc-12cb-4d59-8626-dacf8988d1ff",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1296,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "a11a7a19-95ee-4f8f-9736-8f6e9f622646",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        592
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "fRu69vKjESOKXss3",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "id": "389c12d3-3b9f-48ba-b51a-c3d597260bd9",
+      "name": "Gmail Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1632,
+        432
+      ],
+      "webhookId": "7c1e8ead-6b2f-4b0f-8ca0-12a80aa0d02a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4RuGff3EjUg9AMM5",
+          "name": "Gmail account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "orders",
+          "mode": "list",
+          "cachedResultName": "orders"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySqlTool",
+      "typeVersion": 2.5,
+      "position": [
+        1504,
+        576
+      ],
+      "id": "d9fa8d1e-0821-4e7c-95f1-5ba0c7eb3bd7",
+      "name": "Select rows from a table in MySQL",
+      "credentials": {
+        "mySql": {
+          "id": "qUKvTHYKxgUwibCe",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table in MySQL": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bc1fe6f1-50e3-4a60-abc8-dd200e78da7e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f461d39b74104424c1b7a783ffa1f358cdc97030d500ff915c71aefc6e661cde"
+  },
+  "nodeGroups": [],
+  "id": "TmQaq7rGeMxfV2ul",
+  "tags": []
+}
