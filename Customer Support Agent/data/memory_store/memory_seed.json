@@ -1,0 +1,10 @@
+[
+  {
+    "customer_id": "CUST0001",
+    "memory": "Customer prefers email communication. Previously had a delayed shipment on order ORD00012 and was refunded the shipping fee."
+  },
+  {
+    "customer_id": "CUST0002",
+    "memory": "VIP Platinum member. Frequently asks about price matching. Prefers expedited shipping."
+  }
+]

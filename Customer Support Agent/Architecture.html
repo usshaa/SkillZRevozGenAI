@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaShop System Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --primary: #0f172a;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --layer-bg: #f1f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* --- ARCHITECTURE DIAGRAM --- */
+        .diagram-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .layer {
+            background: var(--layer-bg);
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .layer-title {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--layer-bg);
+            padding: 0 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nodes-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .sys-node {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sys-node:hover {
+            transform: translateY(-2px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1);
+        }
+
+        .sys-node .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .sys-node h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sys-node p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .sys-node .tech-stack {
+            display: inline-block;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .data-node .tech-stack {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .frontend-node .tech-stack {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* --- ARROWS --- */
+        .arrow-down {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            margin: -1rem 0;
+        }
+
+        /* --- TECHNICAL EXPLANATION SECTION --- */
+        .explanation-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .step-block {
+            display: flex;
+            gap: 2rem;
+            background: var(--bg-surface);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            align-items: center;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h3 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .technical-details {
+            flex: 0 0 350px;
+            background: var(--layer-bg);
+            border-left: 4px solid var(--secondary);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            height: 100%;
+        }
+
+        .technical-details h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .technical-details ul {
+            list-style-position: inside;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .technical-details li {
+            margin-bottom: 0.25rem;
+        }
+
+        @media (max-width: 1024px) {
+            .step-block {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .technical-details {
+                flex: none;
+                width: 100%;
+                border-left: none;
+                border-top: 4px solid var(--secondary);
+                border-radius: 0 0 8px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>NovaShop System Architecture Flow</h1>
+            <p class="subtitle">A detailed 7-step sequence mapping the data flow from the User Interface, through the LangGraph Orchestration Layer, down to the Persistent Storage Engines.</p>
+        </header>
+
+        <!-- ARCHITECTURE DIAGRAM -->
+        <div class="diagram-container">
+            <!-- Presentation Layer -->
+            <div class="layer">
+                <div class="layer-title">Presentation Layer</div>
+                <div class="nodes-row">
+                    <div class="sys-node frontend-node">
+                        <div class="icon">🖥️</div>
+                        <h3>Streamlit UI</h3>
+                        <p>User Authentication, RBAC Enforcement & Chat Interface.</p>
+                        <span class="tech-stack">Streamlit</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Orchestration Layer -->
+            <div class="layer">
+                <div class="layer-title">Orchestration Layer</div>
+                <div class="nodes-row">
+                    <div class="sys-node">
+                        <div class="icon">🚦</div>
+                        <h3>Supervisor Node</h3>
+                        <p>Evaluates semantic intent and triggers Conditional Edges.</p>
+                        <span class="tech-stack">LangGraph / Llama-3.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Worker Layer -->
+            <div class="layer">
+                <div class="layer-title">Agent Execution Layer</div>
+                <div class="nodes-row">
+                    <div class="sys-node">
+                        <div class="icon">📚</div>
+                        <h3>FAQ Agent</h3>
+                        <p>Generates policy responses via context extraction.</p>
+                        <span class="tech-stack">Langchain Core</span>
+                    </div>
+                    
+                    <div class="sys-node">
+                        <div class="icon">📦</div>
+                        <h3>Order Agent</h3>
+                        <p>Evaluates logic & outputs structured tool arguments.</p>
+                        <span class="tech-stack">ToolNode / Python</span>
+                    </div>
+
+                    <div class="sys-node">
+                        <div class="icon">💸</div>
+                        <h3>Refund Agent</h3>
+                        <p>Evaluates refund windows & triggers escalations.</p>
+                        <span class="tech-stack">ToolNode / Python</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↕</div>
+
+            <!-- Data & Storage Layer -->
+            <div class="layer">
+                <div class="layer-title">Data & Persistence Layer</div>
+                <div class="nodes-row">
+                    <div class="sys-node data-node">
+                        <div class="icon">🧠</div>
+                        <h3>Qdrant Vector DB</h3>
+                        <p>Returns Hybrid Search results (Vector + BM25).</p>
+                        <span class="tech-stack">Qdrant / HuggingFace</span>
+                    </div>
+
+                    <div class="sys-node data-node">
+                        <div class="icon">🗄️</div>
+                        <h3>SQLite Relational DB</h3>
+                        <p>Executes exact-match SQL returning JSON structures.</p>
+                        <span class="tech-stack">SQLite / DB-API</span>
+                    </div>
+
+                    <div class="sys-node data-node">
+                        <div class="icon">💾</div>
+                        <h3>Sqlite Checkpointer</h3>
+                        <p>Saves the absolute state to disk for persistent memory.</p>
+                        <span class="tech-stack">SQLite WAL Mode</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 7-STEP EXPLANATION -->
+        <div class="explanation-section">
+            
+            <div class="step-block">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>User Input</h3>
+                    <p>The user authenticates via the Streamlit frontend. Upon logging in, the system determines their Role-Based Access Control (RBAC) privileges (e.g., Customer vs. Admin). The user then submits a raw natural language query into the chat interface.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Framework:</strong> <code>streamlit >= 1.30.0</code></li>
+                        <li><strong>UI Components:</strong> <code>st.chat_input</code>, <code>st.chat_message</code></li>
+                        <li><strong>Auth Mapping:</strong> Evaluates <code>st.session_state.username</code> against a predefined roles dictionary.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>State Hydration (Context Injection)</h3>
+                    <p>Before sending the query to the AI, Streamlit packages the raw text alongside the user's secure metadata (Name, Role, Customer ID). This data is dynamically injected as an immutable `customer_context` variable into the core LangGraph `AgentState` on every request. This structurally overrides LLM hallucinations regarding identity.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Schema:</strong> <code>AgentState(TypedDict)</code></li>
+                        <li><strong>Context Var:</strong> <code>customer_context: str</code></li>
+                        <li><strong>Deduplication:</strong> Uses <code>Annotated[Sequence[BaseMessage], add_messages]</code> to merge message IDs.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Semantic Routing</h3>
+                    <p>The populated `AgentState` is passed to the LangGraph Supervisor. The Supervisor is a specialized LLM node tasked exclusively with intent recognition. It reads the latest message, ignores attempting to answer it, and outputs a singular routing token to trigger a conditional edge traversal (`faq`, `order`, or `refund`).</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Model:</strong> <code>llama-3.1-8b-instant</code> via <code>ChatGroq</code> API</li>
+                        <li><strong>Node Logic:</strong> <code>supervisor_node(state)</code> returning <code>{"next": token}</code></li>
+                        <li><strong>Routing:</strong> <code>workflow.add_conditional_edges</code> evaluates the returned token.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Execution (Tools & RAG)</h3>
+                    <p>The specialized worker agent receives the query and executes its objective. The FAQ Agent queries Qdrant using Hybrid Search (Dense Vectors + BM25 Sparse Index). Alternatively, the Order/Refund Agents halt text generation, format JSON tool calls, and utilize Python Langchain ToolNodes to execute exact-match, parameterized SQL queries against the local SQLite database.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Dense Vectors:</strong> <code>SentenceTransformers('all-MiniLM-L6-v2')</code> (384-dims)</li>
+                        <li><strong>Sparse Vectors:</strong> <code>BM25Okapi</code> via <code>rank_bm25</code></li>
+                        <li><strong>Tooling:</strong> <code>@tool</code> bound Python functions executing parameterized <code>sqlite3.connect</code> queries.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>Synthesis</h3>
+                    <p>Once the raw data is retrieved from either Qdrant or SQLite, it is piped directly back into the worker agent's context window. The agent synthesizes this raw JSON or text block into a polished, natural language conversational response tailored to the user's specific context.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Payloads:</strong> Raw tool data is appended as a <code>ToolMessage</code> class.</li>
+                        <li><strong>ReAct Loop:</strong> Agent LLM parses the <code>ToolMessage</code> array to synthesize a final <code>AIMessage</code> string.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3>Absolute State Persistence</h3>
+                    <p>Upon completion of the graph traversal, the `langgraph-checkpoint-sqlite` engine intercepts the `AgentState`. It serializes the absolute entirety of the chat history, tool executions, and identity parameters into a binary BLOB. This is safely committed to the `novashop_memory.db` file keyed to the user's `thread_id`.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Library:</strong> <code>langgraph-checkpoint-sqlite >= 3.1.0</code></li>
+                        <li><strong>Instantiation:</strong> <code>SqliteSaver(conn)</code> with explicit <code>.setup()</code> call.</li>
+                        <li><strong>Concurrency:</strong> Uses <code>-wal</code> (Write-Ahead Logging) and <code>-shm</code> for concurrent SQLite operations.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <h3>Output to User</h3>
+                    <p>The state engine yields the final synthesized string back to the Streamlit frontend. The UI extracts the AI's content block, updates the visual chat array, and renders the instantaneous response for the user to read.</p>
+                </div>
+                <div class="technical-details">
+                    <h4>Technical Specifications:</h4>
+                    <ul>
+                        <li><strong>Streaming:</strong> Graph checkpointer yields the final state mapping.</li>
+                        <li><strong>Rendering:</strong> Streamlit executes <code>st.markdown()</code> to paint the response into the chat container.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
